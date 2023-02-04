@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>  
+	<TargetFramework>net7.0</TargetFramework>
+	<ImplicitUsings>enable</ImplicitUsings>
+	<Nullable>enable</Nullable>
+	<EnableDynamicLoading>true</EnableDynamicLoading>
+	<BaseOutputPath>bin\</BaseOutputPath>
+	<Deterministic>false</Deterministic>
+	<Platforms>AnyCPU;x86;x64</Platforms>
+	<AssemblyVersion>1.1.*</AssemblyVersion>
+	<FileVersion>1.1.*</FileVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+	  <ProjectReference Include="..\AdjuvatorTransductorumRCor\AdjuvatorTransductorumRCor.csproj">
+		  <Private>false</Private>
+		  <ExcludeAssets>runtime</ExcludeAssets>
+	  </ProjectReference>
+  </ItemGroup>
+
+</Project>

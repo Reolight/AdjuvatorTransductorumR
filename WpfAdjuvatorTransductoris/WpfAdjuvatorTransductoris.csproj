@@ -1,0 +1,46 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net7.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
+	  <UseWindowsForms>true</UseWindowsForms>
+    <Platforms>AnyCPU;x86;x64</Platforms>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AdjuvatorTransductorumRCor\AdjuvatorTransductorumRCor.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Resources\addfile.png" />
+    <None Remove="Resources\addfolder.png" />
+    <None Remove="Resources\file.png" />
+    <None Remove="Resources\remfile.png" />
+    <None Remove="Resources\remfolder.png" />
+    <Resource Include="Resources\addfile.png" />
+    <Resource Include="Resources\addfolder.png" />
+    <Resource Include="Resources\file.png" />
+    <None Remove="Resources\folder.png" />
+    <Resource Include="Resources\folder.png" />
+    <Resource Include="Resources\remfile.png" />
+    <Resource Include="Resources\remfolder.png" />
+  </ItemGroup>
+
+</Project>

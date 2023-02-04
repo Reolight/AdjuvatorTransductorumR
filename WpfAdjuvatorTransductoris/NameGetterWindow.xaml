@@ -1,0 +1,25 @@
+﻿<Window x:Class="WpfAdjuvatorTransductoris.NameGetterWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WpfAdjuvatorTransductoris"
+        mc:Ignorable="d"
+        Title="Enter name" Height="180" Width="380" ResizeMode="NoResize">
+    <Window.CommandBindings>
+        <CommandBinding Command="local:Commands.Confirm" Executed="Confirm_Executed" CanExecute="Confirm_CanExecuted"/>
+        <CommandBinding Command="local:Commands.Abort" Executed="Abort_Executed" />
+    </Window.CommandBindings>
+    
+    <StackPanel Orientation="Vertical" Margin="32,16,32,16">
+        <TextBlock x:Name="EnterNameLabel" Text="Enter folder name:" Margin="10, 4, 8, 0"/>
+        <StackPanel Orientation="Horizontal"  Width="300" Margin="10,12,10,0" >
+            <TextBox x:Name="NameTextBlock" Height="25" Width="210" HorizontalAlignment="Left"/>
+            <ComboBox x:Name="FileFormatBox" Height="25" Width="65" Margin="4,0,0,0" HorizontalAlignment="Right"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Margin="0,12,0,12" HorizontalAlignment="Center">
+            <Button x:Name="ConfirmButton" Content="Confirm" Width="100" Height="25" Margin="16,0,16,0" Command="local:Commands.Confirm"/>
+            <Button x:Name="AbortButton" Content="Abort" Width="100" Height="25" Margin="16,0,16,0" Command="local:Commands.Abort"/>
+        </StackPanel>
+    </StackPanel>
+</Window>
