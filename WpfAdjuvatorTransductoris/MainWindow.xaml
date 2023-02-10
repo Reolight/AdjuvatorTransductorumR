@@ -4,13 +4,13 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WpfAdjuvatorTransductoris"
-        xmlns:c="clr-namespace:WpfAdjuvatorTransductoris.ViewModel"
         mc:Ignorable="d"
         Title="Adjuvator transductoris R" Height="450" Width="800"
         >
     <Window.CommandBindings>
         <CommandBinding Command="local:Commands.NewProject" Executed="NewProj" />
         <CommandBinding Command="local:Commands.ExtractData" Executed="ExtractData_Executed"  CanExecute="ExtractData_CanExecute"/>
+        <CommandBinding Command="local:Commands.InjectData" Executed="InjectData_Executed" CanExecute="InjectData_CanExecute"/>
         <CommandBinding Command="local:Commands.Navigate" Executed="Navigate_Executed"/>
         <CommandBinding Command="local:Commands.SaveProject" Executed="SaveProject_Executed" CanExecute="SaveProject_CanExecuted" />
         <CommandBinding Command="local:Commands.Save" Executed="Save_Executed" CanExecute="Save_CanExecuted" />
@@ -43,7 +43,7 @@
             </MenuItem>
             <MenuItem Header="Translation" >
                 <MenuItem Header="Extract translation" Command="local:Commands.ExtractData"/>
-                <MenuItem Header="Inject translation" />
+                <MenuItem Header="Inject translation" Command="local:Commands.InjectData"/>
             </MenuItem>
             <MenuItem Header="View">
                 <MenuItem Header="Language Manager" Command="local:Commands.OpenLanguageManager"/>

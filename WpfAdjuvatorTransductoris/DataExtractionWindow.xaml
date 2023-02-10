@@ -21,14 +21,9 @@
             <RowDefinition Height="0.2*"/>
         </Grid.RowDefinitions>
         
-        <StackPanel Orientation="Horizontal" Margin="24">
-            <TextBlock Text="Path" Margin="12"/>
-            <TextBox x:Name="PathText" Height="25" MinWidth="300" IsEnabled="False"/>
-            <Button x:Name="PathBrowseButton" Height="25" Width="75" Margin="12,0,12,0" Content="Browse..." Click="PathBrowseButton_OnClick"/>
-        </StackPanel>
-        
         <ListView 
             x:Name="pluginList"
+            ItemsSource="{Binding}"
             Grid.Row="1"
             Grid.Column="0" 
             Margin="24,0,24,0"
@@ -37,16 +32,28 @@
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem">
                     <Setter Property="Height" Value="50"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Path=IsSupported}" Value="False">
+                            <Setter Property="Foreground" Value="Red" />
+                        </DataTrigger>
+                    </Style.Triggers>
                 </Style>
             </ListView.ItemContainerStyle>
 
             <ListView.View>
-                <GridView>
-                    <GridViewColumn DisplayMemberBinding="{Binding Path=Name}">Name</GridViewColumn>
-                    <GridViewColumn DisplayMemberBinding="{Binding Path=Description}">Description</GridViewColumn>
-                    <GridViewColumn DisplayMemberBinding="{Binding Path=Version}">Version</GridViewColumn>
-                    <GridViewColumn DisplayMemberBinding="{Binding Path=Author}">Author</GridViewColumn>
-                </GridView>
+                    <GridView>
+                        <GridViewColumn DisplayMemberBinding="{Binding Path=Name}">Name</GridViewColumn>
+                        <GridViewColumn DisplayMemberBinding="{Binding Path=Author}">Author</GridViewColumn>
+                        <GridViewColumn Header="Description">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Path=Description}"/>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn DisplayMemberBinding="{Binding Path=Version}">Version</GridViewColumn>
+                        <GridViewColumn DisplayMemberBinding="{Binding Path=CorVersion}" Header="Core ver."/>
+                    </GridView>
             </ListView.View>
         </ListView>
         

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using AdjuvatorTransductorumRCor.Model;
+using AdjuvatorTransductorumRCor.ViewDescriber;
 using WpfAdjuvatorTransductoris.Helpers;
 using WpfAdjuvatorTransductoris.ViewModel;
 using MessageBox = System.Windows.MessageBox;
@@ -16,35 +17,44 @@ namespace WpfAdjuvatorTransductoris
             NewProject np = new NewProject();
             np.Confirmed += s =>
             {
-                MessageBoxResult result =
-                    MessageBox.Show("Another project instance found.\nCreate new project anyway?",
-                        "Attention", MessageBoxButton.YesNo);
+                var result = MessageBox.Show("Another project instance found.\nCreate new project anyway?", 
+                    "Attention", MessageBoxButton.YesNo);
                 if (result == MessageBoxResult.Yes)
                     Title = s;
                 else
                     MessageBox.Show("New project creation cancelled");
             };
 
-            np.Show();
+            np.ShowDialog();
         }
 
         private void ExtractData_Executed(object sender, ExecutedRoutedEventArgs e)
         {
-            if (_core is null)
-            {
-                MessageBox.Show("Core is not initialized");
-                return;
-            }
-
+            // Null suppression (CanExecute makes sure it is not null) 
+            if (_core == null) return; 
             DataExtractionWindow extractionWindow = new DataExtractionWindow(_core);
-            extractionWindow.ExtractionConfirmed += (path, pluginName) =>
+            extractionWindow.Confirmed += (pluginName) =>
             {
                 try
                 {
-                    if (_core.GetDataModel(path, pluginName) is { } data)
-                        DataProvider.Data = data;
-                    TabController.PluginName = pluginName;
-                    DataModelXmlWriter.SaveDataModelAsXml(DataProvider.Data, projName);
+                    ViewDefinition pluginExtractionWindow = _core.CallPluginExtractionWindow(pluginName);
+                    
+                    var window = PluginViewTranslator.GetWindow(pluginExtractionWindow);
+                    window.Closed += (closedObj, _) =>
+                    {
+                        if (closedObj is not PluginDataCarrierWindow dataCarrierWindow) return;
+                        if (dataCarrierWindow.Data == null)
+                        {
+                            MessageBox.Show("Data extraction cancelled");
+                            return;
+                        }
+                        
+                        DataProvider.Data = dataCarrierWindow.Data;
+                        TabController.PluginName = pluginName;
+                        DataModelXmlWriter.SaveDataModelAsXml(DataProvider.Data, projName);
+                    };
+                    
+                    window.ShowDialog();
                 }
                 catch (Exception exception)
                 {
@@ -56,12 +66,42 @@ namespace WpfAdjuvatorTransductoris
                 }
             };
 
-            extractionWindow.Show();
+            extractionWindow.ShowDialog();
         }
 
         private void ExtractData_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
-            e.CanExecute = _core is not null;
+            e.CanExecute = _core is { HasSupportedPlugins: true };
+        }
+
+        private void InjectData_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            if (_core == null) return; 
+            DataExtractionWindow extractionWindow = new DataExtractionWindow(_core);
+            extractionWindow.Confirmed += (pluginName) =>
+            {
+                try
+                {
+                    ViewDefinition pluginInjectorWindow = _core.CallPluginInjectionWindow(pluginName);
+                    var window = PluginViewTranslator.GetWindow(pluginInjectorWindow, DataProvider.Data);
+                    window.ShowDialog();
+                }
+                catch (Exception exception)
+                {
+                    MessageBox.Show(exception.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+#if DEBUG
+                    Console.WriteLine(exception.Message);
+                    Console.WriteLine(exception.StackTrace);
+#endif
+                }
+            };
+
+            extractionWindow.ShowDialog();
+        }
+
+        private void InjectData_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = _core is { HasSupportedPlugins: true } && DataProvider.Data is { IsEmpty: false };
         }
 
         private void Navigate_Executed(object sender, ExecutedRoutedEventArgs e)
@@ -140,9 +180,8 @@ namespace WpfAdjuvatorTransductoris
         {
             if (sender is not MainWindow window) return;
             var node = ViewExplorer.Nodes[window.ListBoxExplorer.SelectedIndex];
-            if (node is null) return;
-            var ConfirmDelete = MessageBox.Show($"Do you want to delete \"{node.Name}\"?", "Confirmation", MessageBoxButton.YesNo, MessageBoxImage.Warning);
-            if (ConfirmDelete == MessageBoxResult.Yes)
+            var confirmDelete = MessageBox.Show($"Do you want to delete \"{node.Name}\"?", "Confirmation", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            if (confirmDelete == MessageBoxResult.Yes)
             {
                 TabController.ForcedClose($"{ViewExplorer.Address}:{node.Name}");
                 ViewExplorer.RemoveNode(node.Name);

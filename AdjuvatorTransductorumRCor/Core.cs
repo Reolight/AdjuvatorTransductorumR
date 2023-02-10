@@ -1,12 +1,44 @@
 ﻿using System.Reflection;
 using AdjuvatorTransductorumRCor.Model;
+using AdjuvatorTransductorumRCor.PluginCommonInterface;
+using AdjuvatorTransductorumRCor.ViewDescriber;
 
 namespace AdjuvatorTransductorumRCor
 {
-    public class Core : IMainCore
+    public class Core
     {
+        public const int CorVersion = 1;
+        
         private List<IDataProvider> _dataProviders; //Use dictionary with Assemblies Names??
-        private IDataProvider? _activeDataProvider;
+        private List<IDataProviderInfo> _notSupportedProviders = new();
+
+        public bool HasSupportedPlugins => (_dataProviders.Count + _notSupportedProviders.Count) > 0;
+        /// <summary>
+        /// Contains computed list of plugins info. Computed upon first call
+        /// </summary>
+        public Lazy<IEnumerable<PluginInfo>> PluginsList =>
+            new(() =>
+            _dataProviders.Select(plugin =>
+                new PluginInfo
+                {
+                    Name = plugin.Name,
+                    Author = plugin.Author,
+                    Description = plugin.Description,
+                    Version = plugin.GetType().Assembly.GetName().Version,
+                    CorVersion = plugin.CorVersion,
+                    IsSupported = true
+                }).Concat(
+                _notSupportedProviders.Select(unsupported =>
+                    new PluginInfo
+                    {
+                        Name = unsupported.Name,
+                        Author = unsupported.Author,
+                        Description = unsupported.Description,
+                        Version = unsupported.GetType().Assembly.GetName().Version,
+                        CorVersion = unsupported.CorVersion,
+                        IsSupported = false
+                    })), LazyThreadSafetyMode.None);
+
         public int PluginsCount { get; set; }
 
 
@@ -22,12 +54,11 @@ namespace AdjuvatorTransductorumRCor
             if (!dir.Exists)
             {
                 dir.Create();
-                Console.WriteLine("There is no plugins yet");
+                // NoPluginException?
                 return;
             }
 
             GetPlugins(dir);
-            if (_dataProviders.Count > 0) _activeDataProvider = _dataProviders[0];
         }
 
         private Type[]? TryGetTypes(Assembly assembly)
@@ -43,18 +74,24 @@ namespace AdjuvatorTransductorumRCor
 
             return null;
         }
-        private IEnumerable<T>? CreateInstances<T>(Assembly assembly) where T : class
+        private void CreateInstances(Assembly assembly)
         {
             var types = TryGetTypes(assembly);
-            if (types is null) yield break;
+            if (types is null) return;
             
             foreach (Type type in types)
             {
-                if (!typeof(T).IsAssignableFrom(type)) continue;
-                var activated = Activator.CreateInstance(type) as T;
-                if (activated is { } result)
+                if (!typeof(IDataProviderInfo).IsAssignableFrom(type)) continue;
+                var activated = Activator.CreateInstance(type) as IDataProviderInfo;
+                if (activated is { CorVersion: CorVersion })
                 {
-                    yield return result;
+                    if (Activator.CreateInstance(type) is IDataProvider provider)
+                        _dataProviders.Add(provider);
+                }
+                else
+                {
+                    if (activated != null)
+                        _notSupportedProviders.Add(activated);
                 }
             }
         }
@@ -66,55 +103,10 @@ namespace AdjuvatorTransductorumRCor
             {
                 PluginLoadContext loadContext = new PluginLoadContext(file.FullName);
                 Assembly assembly = loadContext.LoadFromAssemblyName(AssemblyName.GetAssemblyName(file.FullName));
-
-                if (CreateInstances<IDataProvider>(assembly) is {} providers)
-                    _dataProviders.AddRange(providers);
+                CreateInstances(assembly);
             }
 
             PluginsCount = _dataProviders.Count;
-        }
-
-
-        /// <exception cref="NullReferenceException">Throws when either Provider or Accessor are null</exception>
-        public DataModel GetDataModel(string path, string pluginName)
-        {
-            var found = _dataProviders.Find(p => p.Name == pluginName);
-            if (found is { } provider)
-            {
-                _activeDataProvider = provider;
-                return _activeDataProvider.ExtractData(path);
-            } 
-            
-            throw new NullReferenceException("There is no such provider");
-        }
-
-        /// <summary>
-        /// Saves view model by passing 2 stepls: converting view wmodel to raw data and saving raw data.
-        /// </summary>
-        /// <param name="viewModel">View model</param>
-        /// <param name="path">Path to save location</param>
-        /// <returns>Error code: 0 - no errors. 100 - gotten object has wrong format, 
-        /// 200 - wrong path, 201 - path is OK, but files can not be written</returns>
-        /// <exception cref="NullReferenceException">Throws when either Provider or Accessor are null</exception>
-        public int SaveDataModel(DataModel viewModel, string path)
-        {
-            if (_activeDataProvider == null)
-                throw new NullReferenceException(string.Format(
-                    "Current data ${0} is null. Make sure you installed at least one",
-                    _activeDataProvider == null ? "provider" : "accessor"));
-            return 0;
-        }
-
-        public int InjectDataModel(DataModel data, string path, string pluginName)
-        {
-            var found = _dataProviders.Find(p => p.Name == pluginName);
-            if (found is { } provider)
-            {
-                _activeDataProvider = provider;
-                return _activeDataProvider.InjectData(data, path);
-            }
-
-            throw new NullReferenceException("There is no such provider");
         }
 
         public IEnumerable<string> GetPluginInfo()
@@ -125,12 +117,20 @@ namespace AdjuvatorTransductorumRCor
             }
         }
 
-        public IEnumerable<Dictionary<string, string>> GetFullPluginInfo()
+        public ViewDefinition CallPluginExtractionWindow(string pluginName)
         {
-            foreach (IDataProvider prov in _dataProviders)
-            {
-                yield return prov.GetPluginInfo();
-            }
+            var plugin = _dataProviders?.FirstOrDefault(plugin => plugin.Name == pluginName);
+            if (plugin is null)
+                throw new NullReferenceException("There is no plugin with such name");
+            return plugin.ExtractionViewDescription;
+        }
+        
+        public ViewDefinition CallPluginInjectionWindow(string pluginName)
+        {
+            var plugin = _dataProviders?.FirstOrDefault(plugin => plugin.Name == pluginName);
+            if (plugin is null)
+                throw new NullReferenceException("There is no plugin with such name");
+            return plugin.InjectionViewDescription;
         }
     }
 }

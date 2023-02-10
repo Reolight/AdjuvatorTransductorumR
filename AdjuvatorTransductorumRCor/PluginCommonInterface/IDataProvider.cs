@@ -1,28 +1,24 @@
 ﻿using AdjuvatorTransductorumRCor.Model;
+using AdjuvatorTransductorumRCor.ViewDescriber;
 
-namespace AdjuvatorTransductorumRCor
+namespace AdjuvatorTransductorumRCor.PluginCommonInterface
 {
     /// <summary>
     /// This interface defines behaviour for 'data providers' plugins. 
     /// Data providers are used for extracting raw data to data model and vice a verse.
     /// </summary>
-    public interface IDataProvider
+    public interface IDataProvider : IDataProviderInfo
     {
         /// <summary>
-        /// Name of plugin. Name it simple
+        /// Returns description for extraction window. Extraction window must trigger
+        /// internal logic of plugin and return DataModel in args.DataExtracted
         /// </summary>
-        public string Name { get; }
+        public ViewDefinition ExtractionViewDescription { get; }
+        
         /// <summary>
-        /// List of file formats supported by your plugin by default (e.g.: json, xml).
+        /// Returns description for injection window. Injection window must trigger
+        /// internal logic of plugin and return true in args.Injected
         /// </summary>
-        public List<string> SupportedFiles { get; }
-        /// <summary>
-        /// Description. Should include: Source of data and way of obtaining.
-        /// </summary>
-        public string Description { get; }
-        public string Author { get; }
-        public int InjectData(DataModel vm, string path);
-        public DataModel ExtractData(string path);
-        public Dictionary<string, string> GetPluginInfo();
+        public ViewDefinition InjectionViewDescription { get; }
     }
 }

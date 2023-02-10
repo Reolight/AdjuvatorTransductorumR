@@ -15,6 +15,11 @@ namespace AdjuvatorTransductorumRCor.Model
         /// Name of folder where translations are stored
         /// </summary>
         public string MainFolder { get; set; }
+
+        /// <summary>
+        /// IsEmpty true if Root is null or contains no children elements
+        /// </summary>
+        public bool IsEmpty => Root == null || (Root != null && !Root.HasChildren());
         /// <summary>
         /// Common root for relative keys
         /// </summary>

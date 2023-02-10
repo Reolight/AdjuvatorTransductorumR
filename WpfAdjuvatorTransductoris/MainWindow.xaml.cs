@@ -1,9 +1,7 @@
 ﻿using AdjuvatorTransductorumRCor;
 using AdjuvatorTransductorumRCor.Model;
 using System;
-using System.Linq;
 using System.Windows;
-using System.Windows.Input;
 using WpfAdjuvatorTransductoris.Providers;
 using WpfAdjuvatorTransductoris.ViewModel;
 using MessageBox = System.Windows.MessageBox;
@@ -20,7 +18,7 @@ namespace WpfAdjuvatorTransductoris
         private ViewModelTabControl TabController = new();
         public ViewModelExplorer ViewExplorer;
         
-        private IMainCore? _core;
+        private Core? _core;
 
         public MainWindow(string viewModelName, bool load = false)
         {            
