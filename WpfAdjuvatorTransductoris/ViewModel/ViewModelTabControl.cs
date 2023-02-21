@@ -107,7 +107,7 @@ public class ViewModelTabControl : IDataDependable
         if (Data.Root?.GetNode(new Queue<string>(address)) is not { NodeType: NodeTypes.File } file) return;
         ViewModelTab tabView = new ViewModelTab((DataModelNode)file, Data.Languages);
 
-        Data.OnLanguagesChanged += (sender, _) =>
+        Data.LanguagesChanged += (sender, _) =>
         {
             if (sender is DataModel data)
                 tabView.SetLanguages(data.Languages);

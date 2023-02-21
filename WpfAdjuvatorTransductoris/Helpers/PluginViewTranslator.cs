@@ -243,7 +243,7 @@ public static class PluginViewTranslator
             Margin = new Thickness(2,2,4,2)
         };
 
-        formDescription.Content ??= new ViewProp(string.Empty);
+        formDescription.Content ??= new ViewProperty(string.Empty);
         BindContent(pathBox, formDescription);
         browseButton.Click += (_, _) =>
         {

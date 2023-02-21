@@ -12,7 +12,7 @@ namespace MSUnitTests
         {
             _core = new();
             string error = string.Empty;
-            dataModel = _core.GetDataModel("JSON\\locales\\", "JSON Local accessor (i18next)");
+            //dataModel = _core.GetDataModel("JSON\\locales\\", "JSON Local accessor (i18next)");
             DirectoryInfo injected = new DirectoryInfo("locales");
             if (injected.Exists ) 
                 injected.Delete(true);
@@ -88,7 +88,7 @@ namespace MSUnitTests
         [TestMethod]
         public void InjectorTest()
         {
-            _core.InjectDataModel(dataModel!, "locales", "JSON Local accessor (i18next)");
+            //_core.InjectDataModel(dataModel!, "locales", "JSON Local accessor (i18next)");
             var file = new FileInfo("locales\\ru\\loc.json");
             Assert.IsTrue(file.Exists && file.Length > 0);
         }

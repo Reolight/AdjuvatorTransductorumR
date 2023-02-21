@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 
 namespace AdjuvatorTransductorumRCor.ViewDescriber;
 
-public class ViewProp : INotifyPropertyChanged
+public class ViewProperty : INotifyPropertyChanged
 {
     private object? _property;
 
@@ -30,14 +30,14 @@ public class ViewProp : INotifyPropertyChanged
         return base.ToString();
     }
 
-    public ViewProp(object value)
+    public ViewProperty(object value)
     {
         _property = value;
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }

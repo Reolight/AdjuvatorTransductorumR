@@ -1,13 +1,11 @@
-﻿using System.Xml.Serialization;
-
-namespace AdjuvatorTransductorumRCor.Model
+﻿namespace AdjuvatorTransductorumRCor.Model
 {
     public sealed class DataModel
     {
         public List<string> DefaultFileFormat { get; internal set; }
         /// <summary>
         /// Address in a system with Main folder.
-        /// If there is no Main folder in the adress new will be created.
+        /// If there is no Main folder in the address new will be created.
         /// </summary>
         public string OriginalAddress { get; set; }
 
@@ -24,16 +22,21 @@ namespace AdjuvatorTransductorumRCor.Model
         /// Common root for relative keys
         /// </summary>
         public DataModelBase? Root;
+
+        /// <summary>
+        /// True if DataModel tree has tracked changes
+        /// </summary>
+        public bool DataHasChanges => Redactor.ChangeTracker.HasChanges;
         /// <summary>
         /// Builder constructing Root and redacting after
         /// </summary>
         public DataBuilder Redactor { get; set; }
 
-        public event EventHandler? OnLanguagesChanged;
+        public event EventHandler? LanguagesChanged;
 
-        private void OnLanguageChanged(EventArgs e)
+        private void OnLanguageChanged()
         {
-            OnLanguagesChanged?.Invoke(this, EventArgs.Empty);
+            LanguagesChanged?.Invoke(this, EventArgs.Empty);
         }
 
         private List<string> _languages = new();
@@ -49,7 +52,7 @@ namespace AdjuvatorTransductorumRCor.Model
             internal set
             {
                 _languages = value;
-                OnLanguageChanged(EventArgs.Empty);                
+                OnLanguageChanged();                
             }
         }
 
@@ -75,7 +78,7 @@ namespace AdjuvatorTransductorumRCor.Model
             if (_languages.Contains(name))
                 return false;
             _languages.Add(name);
-            OnLanguageChanged(EventArgs.Empty);
+            OnLanguageChanged();
             return true;
         }
 
@@ -83,11 +86,11 @@ namespace AdjuvatorTransductorumRCor.Model
         {
             var isRemoved = _languages.Remove(name);
             if (isRemoved)
-                OnLanguageChanged(EventArgs.Empty);
+                OnLanguageChanged();
             return isRemoved;
         }
 
         internal bool RenameLanguage(string oldName, string newName)
-            => !_languages.Contains(newName) && _languages.Remove(oldName) || AddLanguage(newName);
+            => _languages.Contains(oldName) && _languages.Remove(oldName) | AddLanguage(newName);
     }
 }

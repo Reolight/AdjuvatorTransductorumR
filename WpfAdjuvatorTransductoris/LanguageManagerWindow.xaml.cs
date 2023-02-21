@@ -105,8 +105,6 @@ public partial class LanguageManagerWindow
     {
         if (sender is not LanguageManagerWindow manager) return;
         manager._data.Redactor.AddLanguage(manager.LangCodeTextBox.Text);
-        DataModelXmlWriter.CommitAddRemoveRenameLanguage(manager.LangCodeTextBox.Text, isDelete: false);
-        DataModelXmlWriter.SaveData();
         SetLanguagePairsCollection();
     }
 
@@ -124,8 +122,8 @@ public partial class LanguageManagerWindow
         var oldName = ((LangPair)manager.LanguagesListView.SelectedItem).LangCode; //can not be executed with null Sel..Item
         var newName = manager.LangCodeTextBox.Text;
         _data.Redactor.RenameLanguage(oldName, newName);
-        DataModelXmlWriter.CommitAddRemoveRenameLanguage(oldName, newLangName: newName);
-        DataModelXmlWriter.SaveData();
+        // DataModelXmlWriter.CommitAddRemoveRenameLanguage(oldName, newLangName: newName);
+        // DataModelXmlWriter.SaveData();
         SetLanguagePairsCollection();
     }
 
@@ -144,8 +142,8 @@ public partial class LanguageManagerWindow
         if (userConfirmation != MessageBoxResult.Yes) return;
         string langCode = ((LangPair)manager.LanguagesListView.SelectedItem).LangCode;
         manager._data.Redactor.RemoveLanguage(langCode);
-        DataModelXmlWriter.CommitAddRemoveRenameLanguage(langCode, true);
-        DataModelXmlWriter.SaveData();
+        // DataModelXmlWriter.CommitAddRemoveRenameLanguage(langCode, true);
+        // DataModelXmlWriter.SaveData();
         SetLanguagePairsCollection();
     }
 }

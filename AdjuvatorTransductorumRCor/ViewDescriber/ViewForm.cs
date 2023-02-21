@@ -40,7 +40,7 @@ public class ViewForm : ViewAttrBase
         set => CanExecute += value;
     }
     
-    public ViewProp? Content;
+    public ViewProperty? Content;
     
     // Parent window. Will be initialized upon adding to the window.
     private ViewDefinition _parent = null!;

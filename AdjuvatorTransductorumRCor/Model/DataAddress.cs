@@ -1,36 +1,17 @@
-﻿using System.Collections;
-using System.Net;
-using System.Text.RegularExpressions;
-
-namespace AdjuvatorTransductorumRCor.Model
+﻿namespace AdjuvatorTransductorumRCor.Model
 {
     public sealed class DataAddress
     {
-        private static readonly Regex PathFormatter = new Regex(@"[\w.]+(?=($|:))"); //any word before ":" and end of lane
-
         public static implicit operator string(DataAddress address) => Compress(address.Address);
-        public static Queue<string> Split(string address) => new Queue<string>(address.Split(':'));
-        public static Stack<string> RevertedSplit(string address) => new Stack<string>(address.Split(':'));
+        public static Queue<string> Split(string address) => new(address.Split(':'));
+        public static Stack<string> RevertedSplit(string address) => new(address.Split(':'));
         public static string Compress(IEnumerable<string> address) => string.Join(":", address.ToArray());
 
 
-        public static string ConvertToXPath(string address)
-        {
-            var matches = PathFormatter.Matches(address);
-            System.Text.StringBuilder xpath = new System.Text.StringBuilder(@"DataModel/Root");
-            foreach (Match match in matches)
-            {
-                xpath.Append($"/Node[@Name='{match.Value}']");
-            }
-
-            return xpath.ToString();
-        }
-
-
-    private Queue<string> _address = new();
+        private Queue<string> _address = new();
 
         /// <summary>
-        /// Returns new instance of Queue<string> representing Address;
+        /// Returns new instance of Queue representing Address;
         /// </summary>
         public Queue<string> Address
         {
@@ -40,6 +21,11 @@ namespace AdjuvatorTransductorumRCor.Model
                 _address = value;
                 OnChanged();
             }
+        }
+
+        public override string ToString()
+        {
+            return Compress(_address);
         }
 
         public int Count => _address.Count;

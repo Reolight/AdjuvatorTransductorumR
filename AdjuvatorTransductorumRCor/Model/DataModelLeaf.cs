@@ -6,7 +6,7 @@
         /// Dictionary with lang key and value as value.
         /// E.g.: this.Name = "hello", this.Values["en"] = "world", this.Values["ru"] = "мир";
         /// </summary>
-        public Dictionary<string, string> Values { get; set; } = new();
+        public Dictionary<string, string> Values { get; init; } = new();
 
         public DataModelLeaf()
         {

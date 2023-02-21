@@ -24,17 +24,18 @@ namespace WpfAdjuvatorTransductoris
         static private Regex nameChecker = new Regex(@"[\W\s]");
         private bool isFolder { get; set; }
         public event Action<string>? NameChanged;
-        private List<string> formats { get; }
+        private List<string> Formats { get; }
         public NameGetterWindow(bool isFolder, List<string>? formats = null, string? initial = null)
         {
             InitializeComponent();
             this.isFolder = isFolder;
-            this.formats = formats ?? new();
+            Formats = formats?.Count > 0 ? formats : new List<string>(new[] {"uns"} );
 
             if (!isFolder)
             {
-                EnterNameLabel.Text = "Enter file name";
-                FileFormatBox.ItemsSource = formats;
+                EnterNameLabel.Text = "Enter file name\n" +
+                                      "the file extension is specified for convenience only";
+                FileFormatBox.ItemsSource = Formats;
             } 
             else
             {
@@ -46,11 +47,9 @@ namespace WpfAdjuvatorTransductoris
                 (isFolder? "New folder" : "New file"):
                 (isFolder? "Edit folder name" : "Edit file name");
 
-            if (!string.IsNullOrEmpty(initial))
-            {
-                NameTextBlock.Text = initial;
-                NameTextBlock.SelectedText = initial;
-            }
+            if (string.IsNullOrEmpty(initial)) return;
+            NameTextBlock.Text = initial;
+            NameTextBlock.SelectedText = initial;
         }
 
         public void Confirm_Executed(object sender, ExecutedRoutedEventArgs e) {

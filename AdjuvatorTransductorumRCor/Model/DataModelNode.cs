@@ -3,14 +3,12 @@ using System.Globalization;
 
 namespace AdjuvatorTransductorumRCor.Model
 {
-    public class DataModelNode : DataModelBase
+    public sealed class DataModelNode : DataModelBase
     {
         /// <summary>
         /// Should not be accessed directly: addition of new nodes is linked with setting of parential bonds
         /// </summary>
         internal Dictionary<string, DataModelBase> nodes = new();
-        
-
         public override bool HasChildren() => nodes.Count > 0;
 
         public override DataModelBase GetNode() => this;
@@ -58,11 +56,15 @@ namespace AdjuvatorTransductorumRCor.Model
 
         public override Stack<string> GetAddress(Stack<string>? address = null)
         {
-            if (NodeType == NodeTypes.Root) return address ?? new Stack<string>();
+            if (NodeType == NodeTypes.Root)
+            {
+                return address ?? new Stack<string>();
+            }
             if (address is null)
                 address = new Stack<string>(new List<string> { Name });
             else
                 address.Push(Name);
+            
             return Parent is not null? Parent.GetAddress(address) : address;
         }
     }

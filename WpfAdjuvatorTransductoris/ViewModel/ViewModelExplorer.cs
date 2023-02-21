@@ -64,8 +64,7 @@ public class ViewModelExplorer : IDataDependable
         if (Data is null) return;
         Data.Redactor.Focus(_address);
         Data.Redactor.AddNode(name);
-        DataModelXmlWriter.CommitNewNode($"{_address}:{name}"); //doesn't save immediately. New file must be changed to be saved
-        RecalculateNodes(_address, new EventArgs());
+        RecalculateNodes(_address, EventArgs.Empty);
     }
 
     public void RemoveNode(string name)
@@ -73,8 +72,7 @@ public class ViewModelExplorer : IDataDependable
         if (Data is null) return;
         Data.Redactor.Focus(_address);
         Data.Redactor.RemoveNode(name);
-        DataModelXmlWriter.CommitRemoveNode($"{_address}:{name}");
-        RecalculateNodes(_address, new EventArgs());
+        RecalculateNodes(_address, EventArgs.Empty);
     }
 
     public ViewModelExplorer()

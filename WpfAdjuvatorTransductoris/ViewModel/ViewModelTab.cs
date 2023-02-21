@@ -138,7 +138,6 @@ public sealed class ViewModelTab : INotifyPropertyChanged
 #if DEBUG
                 Console.WriteLine($@"removing {red}");
 #endif
-                DataModelXmlWriter.CommitRemoveNode($"{Address}:{red}");
                 builder.RemoveValue(red);
             });
 
@@ -157,7 +156,6 @@ public sealed class ViewModelTab : INotifyPropertyChanged
 #if DEBUG
                     Console.WriteLine($@"Adding to {row[0]}:{lang} - {row[i]}");
 #endif
-                    DataModelXmlWriter.CommitNewValue($"{Address}:{row[0]}", lang, row[i]); //there is no 
                     builder.AddValue(row[0], lang, row[i++]); //here is active node
                 }
             });

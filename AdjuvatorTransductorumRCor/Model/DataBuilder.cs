@@ -21,6 +21,8 @@ namespace AdjuvatorTransductorumRCor.Model
         /// </summary>
         private readonly DataModel _dataModel;
 
+        internal readonly DataModelChangeTracker ChangeTracker = new();
+
         public DataBuilder(DataModel dataModel)
         {
             _dataModel = dataModel;
@@ -35,7 +37,8 @@ namespace AdjuvatorTransductorumRCor.Model
         }
 
         /// <summary>
-        /// Performs deletion and renaming. Doesn't change active node!
+        /// Performs language renaming by deleting old language values and assigning them to new created value.
+        /// Doesn't change active node!
         /// </summary>
         /// <param name="node">current node</param>
         /// <param name="oldName">The name of language on which action is performed</param>
@@ -51,6 +54,7 @@ namespace AdjuvatorTransductorumRCor.Model
                     {
                         var val = leaf.GetValue(oldName);
                         leaf.Values.Add(newName, val);
+                        ChangeTracker.AddChange(DataAddress.Compress(leaf.Parent!.GetAddress()), leaf.Name, DataModelChangeType.Edit);
                     }
 
                     leaf.Values.Remove(oldName);
@@ -71,9 +75,14 @@ namespace AdjuvatorTransductorumRCor.Model
         public bool AddLanguage(string name)
             => _dataModel.AddLanguage(name);
 
+        public void RenameActiveNode(string newName, string oldName)
+        {
+            ActiveNode.Name = newName;
+            ChangeTracker.AddRename(DataAddress.Compress(ActiveNode.GetAddress()), newName, oldName);
+        }
+
         public bool RenameLanguage(string oldName, string newName)
-            => _dataModel.RenameLanguage(oldName, newName) 
-               && IterateOnValues(_root, oldName, newName);
+            => IterateOnValues(_root, oldName, newName) && _dataModel.RenameLanguage(oldName, newName);
 
         public bool RemoveLanguage(string name)
             => _dataModel.RemoveLanguage(name);
@@ -106,11 +115,11 @@ namespace AdjuvatorTransductorumRCor.Model
         
         public void Reset() { ActiveNode = (DataModelNode)_root; }
 
-        public bool AddNode(string name, NodeTypes type = NodeTypes.Folder, bool remainActive = false)
+        public bool AddNode(string name, NodeTypes type = NodeTypes.Folder, bool leaveParentActive = false)
         {
             if (ActiveNode.nodes.ContainsKey(name))
             {
-                if (!remainActive) 
+                if (!leaveParentActive) 
                     Down(name);
                 return false;
             }
@@ -128,24 +137,38 @@ namespace AdjuvatorTransductorumRCor.Model
                 Parent = ActiveNode 
             };
 
-            Console.WriteLine($"{DataAddress.Compress(ActiveNode.GetAddress())} >> {node.Name} added");
+            string address = DataAddress.Compress(ActiveNode.GetAddress());
+            Console.WriteLine($"{address} >> {node.Name} added");
             ActiveNode.nodes.Add(name, node);
-            if (!remainActive) Down(name);
+            ChangeTracker.AddChange(address, name, DataModelChangeType.Add);
+            if (!leaveParentActive) Down(name);
             return true;
         }
-        public bool RemoveNode(string name) => ActiveNode.nodes.Remove(name);
+
+        public bool RemoveNode(string name)
+        {
+            if (!ActiveNode.nodes.Remove(name)) return false;
+            ChangeTracker.AddChange(DataAddress.Compress(ActiveNode.GetAddress()),
+                name,
+                DataModelChangeType.Remove);
+            return true;
+        }
+            
         public bool RemoveActiveNode()
         {
             string name = ActiveNode.Name;
             Up();
             return RemoveNode(name);
         }
-        public bool SetValue(string name, string language, string value) => AddValue(name, language, value);
+        
+        public bool SetValue(string name, string language, string value)
+            => AddValue(name, language, value);
         public bool AddValue(string name, string? language = null, string? value = null)
         {
             if (ActiveNode.nodes.ContainsKey(name))
             {
                 DataModelLeaf leaf = (DataModelLeaf)ActiveNode.nodes[name];
+                ChangeTracker.AddChange(DataAddress.Compress(ActiveNode.GetAddress()), name, DataModelChangeType.Edit);
                 if (!string.IsNullOrWhiteSpace(language) && leaf.Values.ContainsKey(language))
                 {
                     leaf.Values[language] = value ?? string.Empty;
@@ -169,6 +192,7 @@ namespace AdjuvatorTransductorumRCor.Model
                 };
 
                 ActiveNode.nodes.Add(name, leaf);
+                ChangeTracker.AddChange(DataAddress.Compress(ActiveNode.GetAddress()), name, DataModelChangeType.Add);
                 Console.WriteLine($"{DataAddress.Compress(ActiveNode.GetAddress())} >> {leaf.Name} added");
                 return string.IsNullOrWhiteSpace(language) || AddValue(name, language, value);
             }
@@ -177,8 +201,15 @@ namespace AdjuvatorTransductorumRCor.Model
         }
         public bool RemoveValue(string name, string? language = null)
         {
-            if (string.IsNullOrWhiteSpace(language)) return ActiveNode.nodes.Remove(name);
-            return ActiveNode.nodes[name] is DataModelLeaf leaf && leaf.Values.Remove(language);
+            if (string.IsNullOrWhiteSpace(language) && ActiveNode.nodes.Remove(name))
+            {
+                ChangeTracker.AddChange(DataAddress.Compress(ActiveNode.GetAddress()), name, DataModelChangeType.Remove);
+                return true;
+            }
+            
+            return ActiveNode.nodes[name] is DataModelLeaf leaf &&
+                   language != null && 
+                   leaf.Values.Remove(language);
         }
     }
 }

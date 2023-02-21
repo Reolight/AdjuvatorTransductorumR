@@ -153,14 +153,7 @@ namespace WpfAdjuvatorTransductoris
         }
 
         private void SaveProject_CanExecuted(object sender, CanExecuteRoutedEventArgs e)
-        {
-            foreach(var tab in TabController.Tabs.Select(t => t.DataContext as ViewModelTab))
-            {
-                if (tab is null) continue;
-                e.CanExecute = tab.HasChanges;
-                if (e.CanExecute) break;
-            }
-        }
+            => e.CanExecute = DataProvider.Data.DataHasChanges;
 
         private void AddFile_Executed(object sender, ExecutedRoutedEventArgs e)
         {

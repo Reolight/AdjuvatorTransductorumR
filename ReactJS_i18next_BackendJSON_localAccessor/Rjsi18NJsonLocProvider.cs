@@ -24,7 +24,7 @@ namespace ReactJS_i18next_BackendJSON_localAccessor
             {
                 new (ViewTypes.Label)
                 {
-                    Content = new ViewProp("Select folder to extract from"),
+                    Content = new ViewProperty("Select folder to extract from"),
                     HorizontalAlign = ViewContentHorizontalAlign.Left,
                     Width = 200,
                     Height = 25,
@@ -33,7 +33,7 @@ namespace ReactJS_i18next_BackendJSON_localAccessor
                 new (ViewTypes.FolderSelection)
                 {
                     Name = "folderSelector",
-                    Content = new ViewProp(string.Empty),
+                    Content = new ViewProperty(string.Empty),
                     HorizontalAlign = ViewContentHorizontalAlign.Left,
                     Width = 300,
                     Height = 30,
@@ -41,7 +41,7 @@ namespace ReactJS_i18next_BackendJSON_localAccessor
                 },
                 new (ViewTypes.Button)
                 {
-                    Content =  new ViewProp("Confirm"),
+                    Content =  new ViewProperty("Confirm"),
                     Width = 100,
                     Height = 25,
                     Margin = 12,
@@ -67,7 +67,7 @@ namespace ReactJS_i18next_BackendJSON_localAccessor
             {
                 new (ViewTypes.Label)
                 {
-                    Content = new ViewProp("Select folder to extract from"),
+                    Content = new ViewProperty("Select folder to extract from"),
                     HorizontalAlign = ViewContentHorizontalAlign.Left,
                     Width = 200,
                     Height = 25
@@ -75,14 +75,14 @@ namespace ReactJS_i18next_BackendJSON_localAccessor
                 new (ViewTypes.FolderSelection)
                 {
                     Name = "folderSelector",
-                    Content = new ViewProp(string.Empty),
+                    Content = new ViewProperty(string.Empty),
                     HorizontalAlign = ViewContentHorizontalAlign.Left,
                     Width = 300,
                     Height = 30
                 },
                 new (ViewTypes.Button)
                 {
-                    Content =  new ViewProp("Confirm"),
+                    Content =  new ViewProperty("Confirm"),
                     Width = 100,
                     Height = 25,
                     Margin = 12,

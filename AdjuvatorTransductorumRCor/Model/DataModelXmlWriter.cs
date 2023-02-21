@@ -1,5 +1,4 @@
-﻿using System.Net;
-using System.Runtime.CompilerServices;
+﻿using System.Security;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 
@@ -144,21 +143,37 @@ public sealed class DataModelXmlWriter
         _languages = new List<string>();
     }
 
+    // Loads list from comma separated string, skips empty strings. "addItem" is an Add method of a list
+    private void LoadCommaSeparatedList(XElement node, string attributeName, Action<string> addItem)
+    {
+        node.Attribute(attributeName)?.Value
+            .Split(',').ToList()
+            .ForEach(item =>
+            {
+                if (!string.IsNullOrWhiteSpace(item))
+                    addItem(item);
+            });
+    }
+    
     private DataModel Load()
     {
         _document = XDocument.Load(new FileStream($"{ProjectSavesDir}\\{_name}.xml", FileMode.Open));
         var root = _document.Element(nameof(DataModel));
         if (root is null) throw new Exception("Root node in xml is empty");
+        
+        // Loading should not be tracked as changes.
+        _model.Redactor.ChangeTracker.StopTracking();
         _model.OriginalAddress = root.Attribute(nameof(_model.OriginalAddress))?.Value ?? string.Empty;
-        root.Attribute(nameof(_model.Languages))?.Value
-            .Split(',').ToList()
-            .ForEach(lang => _model.Redactor.AddLanguage(lang));
-        root.Attribute(nameof(_model.DefaultFileFormat))?.Value
-            .Split(",").ToList()
-            .ForEach(_model.DefaultFileFormat.Add);
+        LoadCommaSeparatedList(root, nameof(_model.Languages), 
+            (lang) => _model.Redactor.AddLanguage(lang));
+        LoadCommaSeparatedList(root, nameof(_model.DefaultFileFormat), 
+            (format) => _model.DefaultFileFormat.Add(format));
         _languages = new List<string>(_model.Languages);
         _model.MainFolder = root.Attribute(nameof(_model.MainFolder))?.Value ?? string.Empty;
         _ = ParseNode(_model.Redactor, root.Element("Root")!);
+        
+        // After loading completion starting to track changes again
+        _model.Redactor.ChangeTracker.StartTracking();
         return _model;
     }
 
@@ -192,133 +207,66 @@ public sealed class DataModelXmlWriter
 
     #region COMMIT
 
-    /// <summary>
-    /// By this method execution GetElement of active writer instance will be called.
-    /// </summary>
-    /// <param name="address">Relative address of element in data model</param>
-    /// <returns>New or found XElement</returns>
-    /// <exception cref="InvalidOperationException">Current writer is not defined</exception>
-    private static XElement GetElementByAddress(string address)
+    private XElement GetElement(string address)
+        => GetElement(DataAddress.Split(address));
+    
+    private XElement GetElement(Queue<string> address)
     {
-        if (_currentWriter is null)
-            throw new InvalidOperationException("There is no active save writer");
-        var node = _currentWriter.GetElement(
-            _currentWriter._document.Root!.Element("Root")!,
-            new Queue<string>(PathFormatter.Matches(address).Select(match => match.Value).ToList())
-        );
-
-        return node;
-    }
-
-    public static void CommitNewNode(string address) => GetElementByAddress(address);
-
-    public static void CommitRemoveNode(string address)
-    {
-        var node = GetElementByAddress(address);
-        node.Remove();
-    }
-
-    public static void CommitNewValue(string address, string lang, string value)
-    {
-        if (_currentWriter is null) return;
-        var node = GetElementByAddress(address);
-        _currentWriter.CommitNewValue(node, lang, value);
-    }
-
-    private bool DoLangOperation(XElement node, string lang, bool? isDelete = null, string? newLangName = null)
-    {
-        if (!string.IsNullOrWhiteSpace(newLangName)) //renaming language, if is not null
+        // should be way to bypass null val of element?
+        var parentElement = _document.Root?.Element("Root");
+        // Just to ensure, if element is initialized. If not, bypass will be provided
+        if (parentElement == null) throw new NullReferenceException("Root element is null");
+        while (address.TryDequeue(out var childName))
         {
-            var value = node.Attribute(lang)?.Value;
-            node.Attribute(lang)?.Remove();
-            node.SetAttributeValue(newLangName, value ?? string.Empty);
-            return true;
-        }
-        
-        if (isDelete == false) //newLangName must be null
-        {
-            node.SetAttributeValue(lang, string.Empty);
-            return true;
+            var child = parentElement.Element(childName);
+            parentElement = child ??
+                            throw new NullReferenceException($"Child element with name {childName} is null");
         }
 
-        node.Attribute(lang)?.Remove(); //isDelete null ar true
-        return true;
+        return parentElement;
     }
 
-    private bool UpdateLangValues(XElement node, string lang, bool? isDelete = null, string? newLangName = null)
+    private void CommitNodeNew(XElement parent, DataModelBase node)
     {
-        foreach (var child in node.Elements("Node"))
-        {
-            if (child.Attribute("NodeType")!.Value != "Key")
-            {
-                _model.Redactor.Down(child.Attribute("Name")!.Value);
-                _ = UpdateLangValues(child, lang, isDelete, newLangName);
-                _model.Redactor.Up();
-            }
-            else
-            {
-                DoLangOperation(child, lang, isDelete, newLangName);
-            }
-        }
+        parent.Add(node.GetNodes().Select(Switcher));
+    }
 
-        return true;
+    private void CommitValueChange(XElement parent, DataModelLeaf node)
+    {
+        foreach (var lang in _languages)
+        {
+            var value = node.Values.ContainsKey(lang) ? node.Values[lang] : string.Empty;
+            parent.SetAttributeValue(lang, value);
+        }
     }
     
-    /// <summary>
-    /// Updates XDocument by creating, removing or renaming language
-    /// </summary>
-    /// <param name="lang">The language on which action is performed</param>
-    /// <param name="isDelete">When true or null, language will be deleted, if false - created </param>
-    /// <param name="newLangName">When defined language will be renamed to this name ignoring isDelete existence</param>
-    /// <exception cref="InvalidOperationException">Throws when there is no active document writer.
-    /// Tip: try to check if saving or loading were called before this method call</exception>
-    public static void CommitAddRemoveRenameLanguage(string lang, bool? isDelete = null, string? newLangName = null)
+    public void CommitChange(DataModelChange changeInstance)
     {
-        if (_currentWriter is null) throw new InvalidOperationException("Current save is not active");
-        var rootDataElement = _currentWriter._document.Root;
-        if (rootDataElement is not { } root) return;
-        root.SetAttributeValue(nameof(_currentWriter._model.Languages), string.Join(',',_currentWriter._model.Languages));
-        var dataModelElement = root.Element("Root")!;
-        _currentWriter._model.Redactor.Reset();
-        _ = _currentWriter.UpdateLangValues(dataModelElement, lang, isDelete, newLangName);
-    }
-
-    private static XElement CreateXmlNode(string name, NodeTypes nodeType)
-        => new("Node", new XAttribute("Name", name), new XAttribute("NodeType", nodeType));
-
-
-    /// <summary>
-    /// Navigates through XDocument in search of XElement located at given address. 
-    /// If XElement doesn't exists, creates new
-    /// </summary>
-    /// <param name="elem">Relative element</param>
-    /// <param name="address">rest of address, navigates relatively to elem</param>
-    /// <returns>XElement located at address</returns>
-    private XElement GetElement(XElement elem, Queue<string> address)
-    {
-        var key = address.Dequeue();
-        if (string.IsNullOrEmpty(key)) return elem;
-        
-        var child = elem
-            .Elements("Node")
-            .FirstOrDefault(e => e.Attribute("Name")?.Value == key);
-        if (child == null) {
-            child = CreateXmlNode(key,
-                key.Contains('.') ? NodeTypes.File :
-                    (elem.Attribute("Name")!.Value.Contains('.') ? NodeTypes.Key : NodeTypes.Folder));
-            elem.Add(child);
-            ActiveProjectHasChanges = true;
+        XElement parentElement;
+        switch (changeInstance.ChangeType)
+        {
+            case DataModelChangeType.Add when _model.Root?.GetNode(changeInstance.NodeName) is { } node:
+                parentElement = GetElement(changeInstance.Address);
+                CommitNodeNew(parentElement, node);
+                break;
+            case DataModelChangeType.Remove:
+                parentElement = GetElement(changeInstance.Address);
+                parentElement.Remove();
+                break;
+            case DataModelChangeType.Rename when changeInstance is DataModelRename renameInstance:
+                parentElement = GetElement(renameInstance.Address);
+                parentElement.SetAttributeValue("Name", renameInstance.NodeName);
+                break;
+            case DataModelChangeType.Edit when 
+                    _model.Root?.GetNode(changeInstance.NodeName) is DataModelLeaf { NodeType: NodeTypes.Key } leafNode:
+                parentElement = GetElement(changeInstance.Address);
+                CommitValueChange(parentElement, leafNode);
+                break;
+            default:
+                throw new InvalidOperationException(
+                    "Commit error: Operation can not be performed with given parameters");
         }
-
-        if (address.Count == 0 || elem.Attribute("Name")!.Value.Contains('.'))
-            return child!;
-        return GetElement(child, address);
     }
-
-    private void CommitNewValue(XElement elem, string lang, string value) {
-        elem.SetAttributeValue(lang, value); 
-        ActiveProjectHasChanges = true;
-    }
-
+    
     #endregion
 }

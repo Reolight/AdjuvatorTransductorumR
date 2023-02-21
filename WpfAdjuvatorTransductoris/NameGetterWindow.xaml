@@ -18,8 +18,8 @@
             <ComboBox x:Name="FileFormatBox" Height="25" Width="65" Margin="4,0,0,0" HorizontalAlignment="Right"/>
         </StackPanel>
         <StackPanel Orientation="Horizontal" Margin="0,12,0,12" HorizontalAlignment="Center">
-            <Button x:Name="ConfirmButton" Content="Confirm" Width="100" Height="25" Margin="16,0,16,0" Command="local:Commands.Confirm"/>
-            <Button x:Name="AbortButton" Content="Abort" Width="100" Height="25" Margin="16,0,16,0" Command="local:Commands.Abort"/>
+            <Button Content="Confirm" Width="100" Height="25" Margin="16,0,16,0" Command="local:Commands.Confirm"/>
+            <Button Content="Abort" Width="100" Height="25" Margin="16,0,16,0" Command="local:Commands.Abort"/>
         </StackPanel>
     </StackPanel>
 </Window>
