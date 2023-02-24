@@ -19,13 +19,6 @@ namespace MSUnitTests
         }
 
         [TestMethod]
-        public void ProviderSimpleTest()
-        {
-            Console.WriteLine($"Address: {dataModel?.OriginalAddress}. Root: {dataModel?.Root} ");
-            Assert.IsNotNull(dataModel);
-        }
-
-        [TestMethod]
         public void DoesLangNotNull()
         {
             Assert.IsNotNull(dataModel?.Root?.GetNode("loc.json"));
@@ -91,13 +84,6 @@ namespace MSUnitTests
             //_core.InjectDataModel(dataModel!, "locales", "JSON Local accessor (i18next)");
             var file = new FileInfo("locales\\ru\\loc.json");
             Assert.IsTrue(file.Exists && file.Length > 0);
-        }
-
-        [TestMethod]
-        public void SaveTest()
-        {
-            Assert.IsNotNull(dataModel);
-            Assert.IsTrue(DataModelXmlWriter.SaveDataModelAsXml(dataModel, "test"));
         }
     }
 }

@@ -9,7 +9,6 @@ public sealed class DataModelXmlWriter
     private const string ProjectSavesDir = "Project";
 
     private DataModel Model { get; set; }
-    private string _name = string.Empty;
     private XDocument _document = new();
     private XElement? _root;
     private List<string> _languages; // ? Does it have any sense ?
@@ -29,7 +28,11 @@ public sealed class DataModelXmlWriter
 
     #region SAVE
 
-    public bool SaveProject(DataModel model, string name)
+    /// <summary>
+    /// Saves current project as XML file. Should be used 
+    /// </summary>
+    /// <returns></returns>
+    public void SaveProject()
     {
         if (!Directory.Exists(ProjectSavesDir))
             Directory.CreateDirectory(ProjectSavesDir);
@@ -45,8 +48,6 @@ public sealed class DataModelXmlWriter
 #endif
             throw;
         }
-
-        return true;
     }
 
     public void InitXDocument(XDocument document)
@@ -55,7 +56,7 @@ public sealed class DataModelXmlWriter
         _root = RootInit();
     }
     
-    public void InitXDocument(string? name = null){
+    public void InitXDocument(){
          _document.Add(
                 new XElement(nameof(DataModel),
                     new XAttribute(nameof(Model.Languages), string.Join(',', Model.Languages)),
@@ -64,8 +65,7 @@ public sealed class DataModelXmlWriter
                     new XElement(nameof(Model.Root),
                         new XAttribute(nameof(Model.Root.Name), Model.Root.Name))
                 ));
-
-         _name = name ?? string.Empty;
+    
          _root = RootInit();
     }
 
@@ -100,11 +100,11 @@ public sealed class DataModelXmlWriter
     #endregion
 
     #region COMMIT
-
-    internal void PushChanges()
+    
+    private void PushChanges()
     {
         _document.SaveAsync(
-            new FileStream($"{ProjectSavesDir}/{_name}.xml", FileMode.Create),
+            new FileStream($"{ProjectSavesDir}/{Model.Name}.xml", FileMode.Create),
             SaveOptions.None,
             CancellationToken.None
         );

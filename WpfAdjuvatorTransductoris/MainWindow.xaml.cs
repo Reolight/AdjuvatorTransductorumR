@@ -32,7 +32,7 @@ namespace WpfAdjuvatorTransductoris
             
             DataProvider = new ViewModelDataProvider(load?
                 DataModelXmlReader.LoadProject(viewModelName) :
-                new DataModel(viewModelName)
+                DataModelFabric.CreateNewDataModel(viewModelName)
             );
             
             DataProvider.Connect(ViewExplorer);

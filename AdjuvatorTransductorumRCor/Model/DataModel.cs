@@ -7,7 +7,7 @@
         public void InitWriter(string name)
         {
             Name = name;
-            Redactor.ModelXmlWriter.InitXDocument(name);
+            Redactor.ModelXmlWriter.InitXDocument();
         }
 
         public List<string> DefaultFileFormat { get; internal set; } = new();
@@ -25,6 +25,7 @@
         /// True if DataModel tree has tracked changes
         /// </summary>
         public bool DataHasChanges => Redactor.ChangeTracker.HasChanges;
+        
         /// <summary>
         /// Builder constructing Root and redacting after
         /// </summary>
@@ -81,7 +82,9 @@
             var modelXmlWriter = new DataModelXmlWriter(this);
             Redactor = new DataBuilder(this, modelXmlWriter);
         }
-        
+
+        #region LANGUAGE_MANAGEMENT
+
         internal bool AddLanguage(string name)
         {
             if (_languages.Contains(name))
@@ -101,5 +104,7 @@
 
         internal bool RenameLanguage(string oldName, string newName)
             => _languages.Contains(oldName) && _languages.Remove(oldName) | AddLanguage(newName);
+        
+        #endregion
     }
 }

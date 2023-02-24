@@ -49,6 +49,6 @@ internal class DataModelChangeTracker
         
         _changes.ForEach(change => writer.CommitChange(change));
         _changes.Clear();
-        builder.ModelXmlWriter.PushChanges();
+        builder.ModelXmlWriter.SaveProject();
     }
 }

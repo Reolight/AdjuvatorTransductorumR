@@ -9,7 +9,7 @@ public class CoreFuncTests
     [TestMethod]
     public void XmlLoaderTest()
     {
-        var dataModel = DataModelXmlWriter.LoadDataModelFromXml("test");
+        var dataModel = DataModelXmlReader.LoadProject("test");
         Assert.AreEqual("world", dataModel?.Root?.GetValue("loc.json:hello:en"));
     }
 }
