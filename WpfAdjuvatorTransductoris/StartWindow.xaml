@@ -51,10 +51,20 @@
             Margin="4"
             Orientation="Vertical"
             Background="Ivory">
-            <ListBox x:Name="ProjectListBox" ItemsSource="{Binding}">
+            <ListBox x:Name="ProjectListBox" 
+                     ItemsSource="{Binding}">
+                <ListBox.InputBindings>
+                    <KeyBinding Key="Enter"
+                                Command="local:Commands.LoadProject" />
+                </ListBox.InputBindings>
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <StackPanel Orientation="Vertical">
+                        <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
+                            <StackPanel.InputBindings>
+                                <MouseBinding MouseAction="LeftDoubleClick" 
+                                              Command="local:Commands.LoadProject"/>
+                            </StackPanel.InputBindings>
+                            
                             <TextBlock FontSize="16" FontWeight="Bold" Text="{Binding Path=Name}"/>
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="Created: " />
@@ -67,26 +77,7 @@
                         </StackPanel>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
-                <ListBox.ItemContainerStyle>
-                    <Style TargetType="ListBoxItem">
-                        <Setter Property="Template">
-                            <Setter.Value>
-                                <ControlTemplate TargetType="ListBoxItem">
-                                    <Border>
-                                        <ContentPresenter>
-                                            <ContentPresenter.InputBindings>
-                                                <MouseBinding MouseAction="LeftDoubleClick"
-                                                              Command="local:Commands.LoadProject" />
-                                                <KeyBinding Key="Enter"
-                                                            Command="local:Commands.LoadProject" />    
-                                            </ContentPresenter.InputBindings>
-                                        </ContentPresenter>
-                                    </Border>
-                                </ControlTemplate>
-                            </Setter.Value>
-                        </Setter>
-                    </Style>
-                </ListBox.ItemContainerStyle>
+                
             </ListBox>
         </StackPanel>
     </Grid>

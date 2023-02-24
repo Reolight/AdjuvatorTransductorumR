@@ -92,9 +92,19 @@
         <ListBox x:Name="ListBoxExplorer"
             Grid.Column="0" Grid.Row="2" Margin="4"
         >
+            <ListBox.InputBindings>
+                <KeyBinding Key="Enter"
+                            Command="local:Commands.Navigate" />
+            </ListBox.InputBindings>
+            
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Orientation="Horizontal">
+                        <StackPanel.InputBindings>
+                            <MouseBinding MouseAction="LeftDoubleClick"
+                                          Command="local:Commands.Navigate" />
+                        </StackPanel.InputBindings>
+                        
                         <StackPanel.ContextMenu>
                             <ContextMenu>
                                 <MenuItem Header="Open" />
@@ -127,26 +137,6 @@
                     </StackPanel>
                 </DataTemplate>
             </ListBox.ItemTemplate>
-            <ListBox.ItemContainerStyle>
-                <Style TargetType="ListBoxItem" BasedOn="{StaticResource {x:Type ListBoxItem }}">
-                    <Setter Property="Template">
-                        <Setter.Value>
-                            <ControlTemplate TargetType="ListBoxItem" >
-                                <Border Background="Transparent" IsHitTestVisible="True">
-                                    <ContentPresenter>
-                                        <ContentPresenter.InputBindings>
-                                            <MouseBinding MouseAction="LeftDoubleClick"
-                                                          Command="local:Commands.Navigate" />
-                                            <KeyBinding Key="Enter"
-                                                        Command="local:Commands.Navigate" />
-                                        </ContentPresenter.InputBindings>
-                                    </ContentPresenter>
-                                </Border>
-                            </ControlTemplate>
-                        </Setter.Value>
-                    </Setter>
-                </Style>
-            </ListBox.ItemContainerStyle>
         </ListBox>
         
         <TabControl x:Name="FileTabControl" Grid.Row="1" Grid.RowSpan="2" Grid.Column="1" />
