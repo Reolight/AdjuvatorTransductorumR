@@ -14,9 +14,9 @@ namespace WpfAdjuvatorTransductoris
     public partial class MainWindow
     {
         private string projName;
-        public ViewModelDataProvider DataProvider;
+        private ViewModelDataProvider DataProvider;
         private ViewModelTabControl TabController = new();
-        public ViewModelExplorer ViewExplorer;
+        private ViewModelExplorer ViewExplorer;
         
         private Core? _core;
 
@@ -31,15 +31,12 @@ namespace WpfAdjuvatorTransductoris
             FileTabControl.ItemsSource = TabController.Tabs;
             
             DataProvider = new ViewModelDataProvider(load?
-                DataModelXmlWriter.LoadDataModelFromXml(viewModelName) :
+                DataModelXmlReader.LoadProject(viewModelName) :
                 new DataModel(viewModelName)
             );
             
             DataProvider.Connect(ViewExplorer);
             DataProvider.Connect(TabController);
-
-            if (!load)
-                DataModelXmlWriter.SaveDataModelAsXml(DataProvider.Data, projName);
         }
 
         protected override void OnInitialized(EventArgs e)

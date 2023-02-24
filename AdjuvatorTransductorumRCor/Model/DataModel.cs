@@ -2,26 +2,24 @@
 {
     public sealed class DataModel
     {
-        public List<string> DefaultFileFormat { get; internal set; }
-        /// <summary>
-        /// Address in a system with Main folder.
-        /// If there is no Main folder in the address new will be created.
-        /// </summary>
-        public string OriginalAddress { get; set; }
+        public string Name;
 
-        /// <summary>
-        /// Name of folder where translations are stored
-        /// </summary>
-        public string MainFolder { get; set; }
+        public void InitWriter(string name)
+        {
+            Name = name;
+            Redactor.ModelXmlWriter.InitXDocument(name);
+        }
+
+        public List<string> DefaultFileFormat { get; internal set; } = new();
 
         /// <summary>
         /// IsEmpty true if Root is null or contains no children elements
         /// </summary>
-        public bool IsEmpty => Root == null || (Root != null && !Root.HasChildren());
+        public bool IsEmpty => !Root.HasChildren();
         /// <summary>
         /// Common root for relative keys
         /// </summary>
-        public DataModelBase? Root;
+        public DataModelBase Root;
 
         /// <summary>
         /// True if DataModel tree has tracked changes
@@ -56,21 +54,32 @@
             }
         }
 
-        public DataModel() { }
-
-        public DataModel(string address, string mainFolder, List<string> defFormat) {
+        public DataModel(string name, List<string> defFormat) : this(name)
+        {
             DefaultFileFormat = defFormat;
-            OriginalAddress = address;
-            MainFolder = mainFolder;
-            Redactor = new DataBuilder(this);
+        }
+
+        /// <summary>
+        /// Creates DataModel with temporal name.
+        /// </summary>
+        /// <param name="mainFolder"></param>
+        /// <param name="defFormat"></param>
+        public DataModel(List<string> defFormat) : 
+            this(DateTime.Now.ToLongTimeString()) 
+        {
+            DefaultFileFormat = defFormat;
         }
 
         public DataModel(string name)
         {
-            DefaultFileFormat = new();
-            OriginalAddress = string.Empty;
-            MainFolder = name;
-            Redactor = new DataBuilder(this);
+            Name = name;
+            Root = new DataModelNode {
+                Name = "root",
+                NodeType = NodeTypes.Root 
+            };
+
+            var modelXmlWriter = new DataModelXmlWriter(this);
+            Redactor = new DataBuilder(this, modelXmlWriter);
         }
         
         internal bool AddLanguage(string name)

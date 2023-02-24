@@ -21,19 +21,18 @@ namespace AdjuvatorTransductorumRCor.Model
         /// </summary>
         private readonly DataModel _dataModel;
 
-        internal readonly DataModelChangeTracker ChangeTracker = new();
+        internal DataModelXmlWriter ModelXmlWriter;
 
-        public DataBuilder(DataModel dataModel)
+        internal readonly DataModelChangeTracker ChangeTracker = new();
+        public void CommitChanges() => ChangeTracker.CommitChanges(this);
+
+        public DataBuilder(DataModel dataModel, DataModelXmlWriter writer)
         {
             _dataModel = dataModel;
-            _root = _dataModel.Root ?? 
-                    new DataModelNode {
-                        Name = "root",
-                        NodeType = NodeTypes.Root 
-                    };
-
+            _root = _dataModel.Root;
             ActiveNode = (DataModelNode)_root;
             _dataModel.Root = _root;
+            ModelXmlWriter = writer;
         }
 
         /// <summary>
@@ -125,7 +124,7 @@ namespace AdjuvatorTransductorumRCor.Model
             }
 
             if (ActiveNode.NodeType == NodeTypes.File)
-                throw new InvalidOperationException("Creation node type other from Key under File node is invalid");
+                throw new InvalidOperationException("[internal|Core:Builder] Creation node type other from Key under File node is invalid");
 
             if (name.Contains(".")) 
                 type = NodeTypes.File;

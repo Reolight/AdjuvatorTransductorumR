@@ -121,7 +121,7 @@ namespace AdjuvatorTransductorumRCor
         {
             var plugin = _dataProviders?.FirstOrDefault(plugin => plugin.Name == pluginName);
             if (plugin is null)
-                throw new NullReferenceException("There is no plugin with such name");
+                throw new NullReferenceException("[internal|Core] There is no plugin with such name");
             return plugin.ExtractionViewDescription;
         }
         
@@ -129,7 +129,7 @@ namespace AdjuvatorTransductorumRCor
         {
             var plugin = _dataProviders?.FirstOrDefault(plugin => plugin.Name == pluginName);
             if (plugin is null)
-                throw new NullReferenceException("There is no plugin with such name");
+                throw new NullReferenceException("[internal|Core] There is no plugin with such name");
             return plugin.InjectionViewDescription;
         }
     }

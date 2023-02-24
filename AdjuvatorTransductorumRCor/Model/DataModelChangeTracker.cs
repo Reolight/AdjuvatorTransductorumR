@@ -1,36 +1,32 @@
 ﻿namespace AdjuvatorTransductorumRCor.Model;
 
-public class DataModelChangeTracker
+internal class DataModelChangeTracker
 {
-    // Should I store commits lice version control does?
-
+    // Should I store commits like version control does?
+    
     // Current changes;
-    private List<DataModelChange> _changes = new();
+    private readonly List<DataModelChange> _changes = new();
     // Must be emptied before _changes
-    private Queue<DataModelRename> _renamingQueue = new(); 
+    private readonly Queue<DataModelRename> _renamingQueue = new(); 
 
     // if false, tracking doesn't work (should be false upon DM init from XML).
     public bool HasChanges => _changes.Count > 0 || _renamingQueue.Count > 0;
     
     private bool _isTracking = true;
-
     internal void StartTracking() => _isTracking = true;
-
     internal void StopTracking() => _isTracking = false;
+
+    private string FullAddress(DataModelChange change)
+        =>  string.IsNullOrEmpty(change.Address)
+                ? change.NodeName
+                : $"{change.Address}:{change.NodeName}";    
     
-    // Rename must be committed through another method
     internal void AddChange(string address, string node, DataModelChangeType operationType)
     {
         if (!_isTracking) return;
         var change = new DataModelChange(address, node, operationType);
-        var parentChange = _changes.FirstOrDefault(storedChange =>
-        {
-            // here we should check if change above current is exists. If it does, skip it;
-            var fullAddressOfStoredChange = string.IsNullOrEmpty(storedChange.Address)
-                ? storedChange.NodeName
-                : $"{storedChange.Address}:{storedChange.NodeName}";
-            return change.Address.Contains(fullAddressOfStoredChange);
-        });
+        var parentChange = _changes.FirstOrDefault(storedChange => 
+            FullAddress(change).Contains(FullAddress(storedChange)));
         
         if (parentChange == null)
             _changes.Add(change);
@@ -43,16 +39,16 @@ public class DataModelChangeTracker
         _renamingQueue.Enqueue(new DataModelRename(address, node, oldName, DataModelChangeType.Rename));
     }
 
-    public void CommitChanges()
+    internal void CommitChanges(DataBuilder builder)
     {
-        while (_renamingQueue.TryDequeue(out var renameInst))
-        {
-            
-        }
+        if (builder.ModelXmlWriter is not { } writer) 
+            throw new NullReferenceException("[internal|Core:Tracker] Can not save without created writer!");
         
-        _changes.ForEach(change =>
-        {
-            
-        });
+        while (_renamingQueue.TryDequeue(out var renameInst))
+            writer.CommitChange(renameInst);
+        
+        _changes.ForEach(change => writer.CommitChange(change));
+        _changes.Clear();
+        builder.ModelXmlWriter.PushChanges();
     }
 }

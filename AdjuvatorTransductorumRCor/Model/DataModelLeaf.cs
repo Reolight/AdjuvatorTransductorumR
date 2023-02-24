@@ -28,10 +28,7 @@
 
         public override DataModelBase GetNode(Queue<string> address) => this;
 
-        public override IEnumerable<DataModelBase> GetNodes()
-        {
-            throw new ArgumentNullException("You've tried to get nodes. It is a child. There is no nodes");
-        }
+        public override IEnumerable<DataModelBase> GetNodes() => new List<DataModelBase>();
 
         public override IEnumerable<DataModelBase> GetNodes(string address) => GetNodes();
 
@@ -40,7 +37,7 @@
         public override string GetValue(string address)
         {
             if (address.Contains(':'))
-                throw new ArgumentException("Language determination expected, address was gotten. " +
+                throw new ArgumentException("[internal|Core:leaf] Language determination expected, address was gotten. " +
                     $"check address variable: [{address}]. It must contain here smth like 'ru' or 'en'!");
             return Values.ContainsKey(address)? Values[address] : string.Empty;
         }
@@ -48,7 +45,7 @@
         public override string GetValue(Queue<string> address)
         {
             if (address.Count > 1 || address.Count == 0)
-                throw new ArgumentException("Language determination expected, address or empty string was gotten. " +
+                throw new ArgumentException("[internal|Core:leaf] Language determination expected, address or empty string was gotten. " +
                     $"check address variable: [{DataAddress.Compress(address)}]. " +
                     $"It must contain here smth like 'ru', 'en' or etc!");
             string lang = address.Dequeue();

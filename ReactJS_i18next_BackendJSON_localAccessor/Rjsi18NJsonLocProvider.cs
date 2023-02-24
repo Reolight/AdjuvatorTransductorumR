@@ -51,7 +51,7 @@ namespace ReactJS_i18next_BackendJSON_localAccessor
                             if (o is not ViewDefinition definition) return;
                             if (definition.FindViewByName("folderSelector")?.Content is not { } pathProp
                                 || pathProp.Property?.ToString() is not { } path) return;
-                            args.DataExtracted = ExtractData(path.ToString());
+                            args.DataExtracted = ExtractData(path);
                         },
                     CanExecuteEvent = (o, args) =>
                         {
@@ -153,7 +153,7 @@ namespace ReactJS_i18next_BackendJSON_localAccessor
         {
             const string locales = "locales";
             DirectoryInfo dir = new DirectoryInfo(path);
-            DataModel model = new DataModel(dir.FullName, locales, SupportedFiles);
+            DataModel model = new DataModel(dir.Name, SupportedFiles);
             if (!dir.Exists || dir.Name != locales)
             {
                 if (dir.Name != locales) Console.WriteLine("There is no folder 'locales'. Creating dir...");

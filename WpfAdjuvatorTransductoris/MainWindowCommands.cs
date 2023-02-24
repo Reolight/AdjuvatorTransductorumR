@@ -11,7 +11,7 @@ using MessageBox = System.Windows.MessageBox;
 namespace WpfAdjuvatorTransductoris
 {
     public partial class MainWindow
-    {
+    { 
         private void NewProj(object sender, ExecutedRoutedEventArgs e)
         {
             NewProject np = new NewProject();
@@ -20,7 +20,16 @@ namespace WpfAdjuvatorTransductoris
                 var result = MessageBox.Show("Another project instance found.\nCreate new project anyway?", 
                     "Attention", MessageBoxButton.YesNo);
                 if (result == MessageBoxResult.Yes)
+                {
+                    var mainWindowWithNewProject = new MainWindow(s);
+                    
+                    // new main window with new project
+                    mainWindowWithNewProject.Show();
+                    
+                    // closing current window
+                    Close();
                     Title = s;
+                }
                 else
                     MessageBox.Show("New project creation cancelled");
             };
@@ -50,8 +59,8 @@ namespace WpfAdjuvatorTransductoris
                         }
                         
                         DataProvider.Data = dataCarrierWindow.Data;
+                        DataProvider.Data.InitWriter(projName);
                         TabController.PluginName = pluginName;
-                        DataModelXmlWriter.SaveDataModelAsXml(DataProvider.Data, projName);
                     };
                     
                     window.ShowDialog();
@@ -189,7 +198,7 @@ namespace WpfAdjuvatorTransductoris
         {
             var win = Application.Current.Windows.OfType<LanguageManagerWindow>().FirstOrDefault();
             if (win is not null)
-                win.Close();
+                win.Activate();
             else
             {
                 LanguageManagerWindow lmWin = new LanguageManagerWindow(DataProvider.Data);

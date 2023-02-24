@@ -120,7 +120,7 @@ public class ViewModelTabControl : IDataDependable
     {
         if (Data is null) return false;
         tab.Save(Data.Redactor);
-        DataModelXmlWriter.SaveData();
+        
         return true;
     }
 
@@ -129,7 +129,7 @@ public class ViewModelTabControl : IDataDependable
         if (Data is null) return false ;
         foreach (var item in tab)
             item?.Save(Data.Redactor);
-        DataModelXmlWriter.SaveData();
+        Data.Redactor.CommitChanges();
         return true;
     }
 
@@ -138,7 +138,7 @@ public class ViewModelTabControl : IDataDependable
         if (Data is null) return false;
         foreach (ViewModelTab tab in Tabs.Select(t => t.DataContext))
             tab.Save(Data.Redactor);
-        DataModelXmlWriter.SaveData();
+        Data.Redactor.CommitChanges();
         return true;
     }
 
@@ -155,7 +155,7 @@ public class ViewModelTabControl : IDataDependable
             Tabs.Remove(activeTab);
     }
 
-    internal void Close(TabItem tab)
+    private void Close(TabItem tab)
     {
         var vm = (ViewModelTab)tab.DataContext;
         if (vm.HasChanges) {
