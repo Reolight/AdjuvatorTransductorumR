@@ -185,7 +185,7 @@ namespace WpfAdjuvatorTransductoris
             var confirmDelete = MessageBox.Show($"Do you want to delete \"{node.Name}\"?", "Confirmation", MessageBoxButton.YesNo, MessageBoxImage.Warning);
             if (confirmDelete == MessageBoxResult.Yes)
             {
-                TabController.ForcedClose($"{ViewExplorer.Address}:{node.Name}");
+                TabController.ForcedClose(DataAddress.SmartCompress(ViewExplorer.Address, node.Name));
                 ViewExplorer.RemoveNode(node.Name);
             }
         }

@@ -8,6 +8,11 @@ namespace AdjuvatorTransductorumRCor.Model
         public static Queue<string> Split(string address) => new(address.Split(':'));
         public static Stack<string> RevertedSplit(string address) => new(address.Split(':'));
         public static string Compress(IEnumerable<string> address) => string.Join(":", address.ToArray());
+
+        public static string SmartCompress(string firstPart, string secondPart)
+            => string.IsNullOrWhiteSpace(firstPart) ? secondPart :
+                string.IsNullOrWhiteSpace(secondPart) ? firstPart :
+                $"{firstPart}:{secondPart}";
         
         public static bool Contains(string addressToSearchIn, string addressToSearchFor)
             => Contains(Split(addressToSearchIn), Split(addressToSearchFor));
