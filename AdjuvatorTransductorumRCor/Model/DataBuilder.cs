@@ -137,7 +137,7 @@ namespace AdjuvatorTransductorumRCor.Model
             };
 
             string address = DataAddress.Compress(ActiveNode.GetAddress());
-            Console.WriteLine($"{address} >> {node.Name} added");
+            Console.WriteLine($"[Builder] {address} >> {node.Name} added");
             ActiveNode.nodes.Add(name, node);
             ChangeTracker.AddChange(address, name, DataModelChangeType.Add);
             if (!leaveParentActive) Down(name);
@@ -171,12 +171,12 @@ namespace AdjuvatorTransductorumRCor.Model
                 if (!string.IsNullOrWhiteSpace(language) && leaf.Values.ContainsKey(language))
                 {
                     leaf.Values[language] = value ?? string.Empty;
-                    Console.WriteLine($"{DataAddress.Compress(leaf.GetAddress())} >> to [{language}] [{value}] added");
+                    Console.WriteLine($"[Builder] {DataAddress.Compress(leaf.GetAddress())} >> to [{language}] [{value}] added");
                 }
                 else if (!string.IsNullOrWhiteSpace(language))
                 {
                     leaf.Values.Add(language, value ?? string.Empty);
-                    Console.WriteLine($"{DataAddress.Compress(leaf.GetAddress())} >> [{language}]:[{value}] added");
+                    Console.WriteLine($"[Builder] {DataAddress.Compress(leaf.GetAddress())} >> [{language}]:[{value}] added");
                 }
                 else return false;
             }
@@ -192,7 +192,7 @@ namespace AdjuvatorTransductorumRCor.Model
 
                 ActiveNode.nodes.Add(name, leaf);
                 ChangeTracker.AddChange(DataAddress.Compress(ActiveNode.GetAddress()), name, DataModelChangeType.Add);
-                Console.WriteLine($"{DataAddress.Compress(ActiveNode.GetAddress())} >> {leaf.Name} added");
+                Console.WriteLine($"[Builder] {DataAddress.Compress(ActiveNode.GetAddress())} >> {leaf.Name} added");
                 return string.IsNullOrWhiteSpace(language) || AddValue(name, language, value);
             }
 

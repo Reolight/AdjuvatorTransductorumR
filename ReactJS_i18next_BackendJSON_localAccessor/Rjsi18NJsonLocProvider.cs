@@ -138,7 +138,7 @@ namespace ReactJS_i18next_BackendJSON_localAccessor
                 builder.Up();
             }
 
-            return builder.Up();
+            return true; // builder.Up();
         }
 
         private static void LangInit(DataBuilder builder, DirectoryInfo dir)
@@ -250,7 +250,7 @@ namespace ReactJS_i18next_BackendJSON_localAccessor
         {
             DirectoryInfo dir = new DirectoryInfo(path);
             if (dir.Name != "locales" || !dir.Exists)
-                dir.Create();
+                dir = new DirectoryInfo(dir.FullName + "\\locales");
             LangCreate(dm, dir);
         }
 

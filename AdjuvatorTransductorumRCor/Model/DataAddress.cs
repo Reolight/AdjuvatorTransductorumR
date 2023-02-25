@@ -1,4 +1,6 @@
-﻿namespace AdjuvatorTransductorumRCor.Model
+﻿using System.Diagnostics;
+
+namespace AdjuvatorTransductorumRCor.Model
 {
     public sealed class DataAddress
     {
@@ -6,7 +8,20 @@
         public static Queue<string> Split(string address) => new(address.Split(':'));
         public static Stack<string> RevertedSplit(string address) => new(address.Split(':'));
         public static string Compress(IEnumerable<string> address) => string.Join(":", address.ToArray());
+        
+        public static bool Contains(string addressToSearchIn, string addressToSearchFor)
+            => Contains(Split(addressToSearchIn), Split(addressToSearchFor));
+        public static bool Contains(Queue<string> baseAddress, Queue<string> address)
+        {
+            while(baseAddress.TryDequeue(out string? baseAddressKey) && baseAddressKey != null
+                && address.TryDequeue(out string? addressKey) && addressKey != null)
+            {
+                if (baseAddressKey != addressKey)
+                    return false;
+            }
 
+            return true;
+        }
 
         private Queue<string> _address = new();
 

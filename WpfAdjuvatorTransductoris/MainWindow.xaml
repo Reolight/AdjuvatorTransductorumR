@@ -5,8 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WpfAdjuvatorTransductoris"
         mc:Ignorable="d"
-        Title="Adjuvator transductoris R" Height="450" Width="800"
-        >
+        Title="Adjuvator transductoris R" Height="450" Width="800">
     <Window.CommandBindings>
         <CommandBinding Command="local:Commands.NewProject" Executed="NewProj" />
         <CommandBinding Command="local:Commands.ExtractData" Executed="ExtractData_Executed"  CanExecute="ExtractData_CanExecute"/>
@@ -19,6 +18,18 @@
         <CommandBinding Command="local:Commands.RemoveNode" Executed="Remove_Executed" CanExecute="Remove_CanExecuted"/>
         <CommandBinding Command="local:Commands.OpenLanguageManager" Executed="OpenLanguageManager_OnExecuted"/>
     </Window.CommandBindings>
+    
+    <Window.InputBindings>
+        <KeyBinding Command="local:Commands.Save"
+                    Key="S"
+                    Modifiers="Control"/>
+        <KeyBinding Command="local:Commands.SaveProject"
+                    Key="S"
+                    Modifiers="Control+Shift"/>
+        <KeyBinding Command="local:Commands.OpenLanguageManager"
+                    Key="L"
+                    Modifiers="Control"/>
+    </Window.InputBindings>
 
     <Grid>
         <Grid.RowDefinitions>
@@ -33,30 +44,30 @@
         </Grid.ColumnDefinitions>
         
         <Menu x:Name="MainMenu" Height="25" VerticalAlignment="Top" Grid.ColumnSpan="2" Grid.Row="0">
-            <MenuItem Header="Project">
-                <MenuItem Header="New project" Command="local:Commands.NewProject" />
-                <MenuItem Header="Open project" />
-                <MenuItem Header="Recent project" />
+            <MenuItem Header="_Project">
+                <MenuItem Header="_New project" Command="local:Commands.NewProject" />
+                <MenuItem Header="_Open project" />
+                <MenuItem Header="_Recent project" />
                 <Separator />
-                <MenuItem Header="Save" Command="local:Commands.Save" />
-                <MenuItem Header="Save all" Command="local:Commands.SaveProject" />
+                <MenuItem Header="_Save" Command="local:Commands.Save" />
+                <MenuItem Header="Save _all" Command="local:Commands.SaveProject" />
             </MenuItem>
-            <MenuItem Header="Translation" >
-                <MenuItem Header="Extract translation" Command="local:Commands.ExtractData"/>
-                <MenuItem Header="Inject translation" Command="local:Commands.InjectData"/>
+            <MenuItem Header="_Translation" >
+                <MenuItem Header="_Extract translation" Command="local:Commands.ExtractData"/>
+                <MenuItem Header="_Inject translation" Command="local:Commands.InjectData"/>
             </MenuItem>
-            <MenuItem Header="View">
-                <MenuItem Header="Language Manager" Command="local:Commands.OpenLanguageManager"/>
-                <MenuItem Header="Translation completion"/>
+            <MenuItem Header="_View">
+                <MenuItem Header="_Language Manager" Command="local:Commands.OpenLanguageManager"/>
+                <MenuItem Header="Translation _completion"/>
             </MenuItem>
-            <MenuItem Header="Plugins">
-                <MenuItem Header="Open plugins folder"/>
-                <MenuItem Header="Installed plugins" Click="PluginList"/>
+            <MenuItem Header="Pl_ugins">
+                <MenuItem Header="_Open plugins folder" Click="OpenPluginFolder_OnClick"/>
+                <MenuItem Header="_Installed plugins" Click="PluginList"/>
                 <Separator/>
             </MenuItem>
-            <MenuItem Header="About">
-                <MenuItem Header="Help"/>
-                <MenuItem Header="About" Click="AboutClicked"/>
+            <MenuItem Header="_About">
+                <MenuItem Header="_Help"/>
+                <MenuItem Header="_About" Click="AboutClicked"/>
             </MenuItem>
         </Menu>
 

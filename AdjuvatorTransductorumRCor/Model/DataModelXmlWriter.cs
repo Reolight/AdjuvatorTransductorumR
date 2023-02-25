@@ -11,10 +11,8 @@ public sealed class DataModelXmlWriter
     private DataModel Model { get; set; }
     private XDocument _document = new();
     private XElement? _root;
-    private List<string> _languages; // ? Does it have any sense ?
 
     public DataModelXmlWriter(DataModel model){
-        _languages = model.Languages;
         Model = model;
     }
 
@@ -92,8 +90,7 @@ public sealed class DataModelXmlWriter
                 new XAttribute(nameof(leaf.Name), leaf.Name),
                 new XAttribute(nameof(leaf.NodeType), leaf.NodeType),
             }
-            .Concat(_languages
-                .Select(lang => new XAttribute(lang, leaf.GetValue(lang)))
+            .Concat(Model.Languages.Select(lang => new XAttribute(lang, leaf.GetValue(lang)))
             )
         );
 
@@ -120,7 +117,8 @@ public sealed class DataModelXmlWriter
                 CommitNodeNew(parentElement, node);
                 break;
             case DataModelChangeType.Remove:
-                parentElement = GetElement(changeInstance.Address);
+                parentElement = GetElement(string.IsNullOrEmpty(changeInstance.Address)? changeInstance.NodeName:
+                    changeInstance.Address + ":" + changeInstance.NodeName );
                 parentElement.Remove();
                 break;
             case DataModelChangeType.Rename when changeInstance is DataModelRename renameInstance:
@@ -143,7 +141,7 @@ public sealed class DataModelXmlWriter
 
     private void CommitValueChange(XElement parent, DataModelLeaf node)
     {
-        foreach (var lang in _languages)
+        foreach (var lang in Model.Languages)
         {
             var value = node.Values.ContainsKey(lang) ? node.Values[lang] : string.Empty;
             parent.SetAttributeValue(lang, value);
@@ -164,7 +162,7 @@ public sealed class DataModelXmlWriter
         while (address.TryDequeue(out var childName))
         {
             if (string.IsNullOrEmpty(childName)) return parentElement;
-            var child = parentElement.Element(childName);
+            var child = parentElement.Elements("Node").FirstOrDefault(element => element.Attribute("Name")?.Value == childName);
             parentElement = child ??
                             throw new NullReferenceException($"[internal|Core:Writer] Child element with name {childName} is null");
         }

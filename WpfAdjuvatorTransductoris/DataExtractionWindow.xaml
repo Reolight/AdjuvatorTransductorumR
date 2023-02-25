@@ -16,15 +16,14 @@
     
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="0.2*"/>
-            <RowDefinition Height="0.6*"/>
+            <RowDefinition Height="0.8*"/>
             <RowDefinition Height="0.2*"/>
         </Grid.RowDefinitions>
         
         <ListView 
             x:Name="pluginList"
             ItemsSource="{Binding}"
-            Grid.Row="1"
+            Grid.Row="0"
             Grid.Column="0" 
             Margin="24,0,24,0"
             ScrollViewer.VerticalScrollBarVisibility="Auto"
@@ -57,6 +56,6 @@
             </ListView.View>
         </ListView>
         
-        <Button x:Name="ConfirmButton" Grid.Row="2" Height="25" Width="125" Content="Extract" Command="local:Commands.ExtractionConfirmed"/>
+        <Button x:Name="ConfirmButton" Grid.Row="1" Height="25" Width="125" Content="Extract" Command="local:Commands.ExtractionConfirmed"/>
     </Grid>
 </Window>

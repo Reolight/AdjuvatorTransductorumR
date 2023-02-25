@@ -8,7 +8,7 @@ public class PluginDataCarrierWindow : Window
 {
     public DataModel? Data;
 
-    public PluginDataCarrierWindow(ViewDefinition definition,  DataModel? model) : base()
+    public PluginDataCarrierWindow(ViewDefinition definition,  DataModel? model)
     {
         Data = model;
         definition.PropertyChanged += (sender, args) =>
@@ -21,6 +21,9 @@ public class PluginDataCarrierWindow : Window
         if (Data == null)
             definition.ExtractionFinished += Close;
         else
+        {
             definition.InjectionFinished += Close;
+            definition.Data = Data;
+        }
     }
 }

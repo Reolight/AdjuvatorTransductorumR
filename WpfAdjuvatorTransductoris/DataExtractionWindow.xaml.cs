@@ -27,8 +27,7 @@ namespace WpfAdjuvatorTransductoris
         private void ExtractionConfirmed_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
             DataExtractionWindow window = (DataExtractionWindow)sender;
-            var item = window.pluginList.SelectedItem as PluginInfo;
-            e.CanExecute = item is { IsSupported: true }; // window.pluginList.SelectedIndex >= 0;
+            e.CanExecute = window.pluginList.SelectedItem is PluginInfo { IsSupported: true }; // window.pluginList.SelectedIndex >= 0;
         }
     }
 }

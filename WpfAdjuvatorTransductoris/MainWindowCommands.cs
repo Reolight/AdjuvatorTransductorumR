@@ -46,7 +46,7 @@ namespace WpfAdjuvatorTransductoris
             {
                 try
                 {
-                    ViewDefinition pluginExtractionWindow = _core.CallPluginExtractionWindow(pluginName);
+                    ViewDefinition pluginExtractionWindow = _core.RetrievePluginExtractionWindowDescription(pluginName);
                     
                     var window = PluginViewTranslator.GetWindow(pluginExtractionWindow);
                     window.Closed += (closedObj, _) =>
@@ -91,7 +91,7 @@ namespace WpfAdjuvatorTransductoris
             {
                 try
                 {
-                    ViewDefinition pluginInjectorWindow = _core.CallPluginInjectionWindow(pluginName);
+                    ViewDefinition pluginInjectorWindow = _core.RetrievePluginInjectionWindowDescription(pluginName);
                     var window = PluginViewTranslator.GetWindow(pluginInjectorWindow, DataProvider.Data);
                     window.ShowDialog();
                 }

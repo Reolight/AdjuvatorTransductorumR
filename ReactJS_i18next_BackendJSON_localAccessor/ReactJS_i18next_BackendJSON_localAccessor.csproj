@@ -12,6 +12,10 @@
 	<FileVersion>1.1.*</FileVersion>
   </PropertyGroup>
 
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <OutputPath>bin\Debug\</OutputPath>
+  </PropertyGroup>
+
   <ItemGroup>
 	  <ProjectReference Include="..\AdjuvatorTransductorumRCor\AdjuvatorTransductorumRCor.csproj">
 		  <Private>false</Private>

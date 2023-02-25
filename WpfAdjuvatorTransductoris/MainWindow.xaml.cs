@@ -1,6 +1,7 @@
 ﻿using AdjuvatorTransductorumRCor;
 using AdjuvatorTransductorumRCor.Model;
 using System;
+using System.Diagnostics;
 using System.Windows;
 using WpfAdjuvatorTransductoris.Providers;
 using WpfAdjuvatorTransductoris.ViewModel;
@@ -54,5 +55,10 @@ namespace WpfAdjuvatorTransductoris
 
         private void AboutClicked(object sender, RoutedEventArgs e)
             => MessageBox.Show("Adjuvator transductoris is an application for providing an assistance in text translation. \n\n Developed by Reolight", "Adjuvator transductoris per creationem transductionum perfecta");
+
+        private void OpenPluginFolder_OnClick(object sender, RoutedEventArgs e)
+        {
+            Process.Start("explorer.exe", System.IO.Directory.GetCurrentDirectory() + "\\Plugin");
+        }
     }
 }

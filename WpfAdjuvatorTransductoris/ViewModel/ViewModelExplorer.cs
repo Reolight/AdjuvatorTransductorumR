@@ -51,7 +51,7 @@ public class ViewModelExplorer : IDataDependable
             .ToList();
 
 #if DEBUG 
-        Console.WriteLine($"Explorer >> {(string)address}");
+        Console.WriteLine($"[Explorer] {(string)address}");
 #endif
 
         if (address.Count > 0)

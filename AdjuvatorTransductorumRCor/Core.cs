@@ -13,6 +13,7 @@ namespace AdjuvatorTransductorumRCor
         private List<IDataProviderInfo> _notSupportedProviders = new();
 
         public bool HasSupportedPlugins => (_dataProviders.Count + _notSupportedProviders.Count) > 0;
+        
         /// <summary>
         /// Contains computed list of plugins info. Computed upon first call
         /// </summary>
@@ -117,7 +118,7 @@ namespace AdjuvatorTransductorumRCor
             }
         }
 
-        public ViewDefinition CallPluginExtractionWindow(string pluginName)
+        public ViewDefinition RetrievePluginExtractionWindowDescription(string pluginName)
         {
             var plugin = _dataProviders?.FirstOrDefault(plugin => plugin.Name == pluginName);
             if (plugin is null)
@@ -125,7 +126,7 @@ namespace AdjuvatorTransductorumRCor
             return plugin.ExtractionViewDescription;
         }
         
-        public ViewDefinition CallPluginInjectionWindow(string pluginName)
+        public ViewDefinition RetrievePluginInjectionWindowDescription(string pluginName)
         {
             var plugin = _dataProviders?.FirstOrDefault(plugin => plugin.Name == pluginName);
             if (plugin is null)
