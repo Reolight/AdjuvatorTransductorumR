@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 
@@ -37,6 +38,12 @@ public class AppInfo
         }
     }
 
+    public IEnumerable<string> GetRecent(string currentName)
+        => ProjectInfos.ToList()
+            .Where(project => project.Name != currentName)
+            .OrderByDescending(project => project.LastEdit)
+            .Select(project => project.Name);
+    
     public static AppInfo GetInstance()
     {
         _instance ??= new AppInfo();

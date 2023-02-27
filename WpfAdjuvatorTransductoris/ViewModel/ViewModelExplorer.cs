@@ -32,7 +32,7 @@ public class ViewModelExplorer : IDataDependable
         }
     }
 
-    public ObservableCollection<Node> Nodes { get; set; } = new ObservableCollection<Node>();
+    public ObservableCollection<Node> Nodes { get; set; } = new();
 
     private void RecalculateNodes(object? sender, EventArgs args)
     {
@@ -64,6 +64,14 @@ public class ViewModelExplorer : IDataDependable
         if (Data is null) return;
         Data.Redactor.Focus(_address);
         Data.Redactor.AddNode(name);
+        RecalculateNodes(_address, EventArgs.Empty);
+    }
+
+    public void RenameNode(string currentName, string newName)
+    {
+        if (Data is null) return;
+        Data.Redactor.Focus(_address);
+        Data.Redactor.RenameNode(currentName, newName);
         RecalculateNodes(_address, EventArgs.Empty);
     }
 

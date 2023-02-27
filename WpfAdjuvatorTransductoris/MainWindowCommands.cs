@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using AdjuvatorTransductorumRCor.Model;
 using AdjuvatorTransductorumRCor.ViewDescriber;
@@ -11,7 +12,7 @@ using MessageBox = System.Windows.MessageBox;
 namespace WpfAdjuvatorTransductoris
 {
     public partial class MainWindow
-    { 
+    {
         private void NewProj(object sender, ExecutedRoutedEventArgs e)
         {
             NewProject np = new NewProject();
@@ -139,6 +140,13 @@ namespace WpfAdjuvatorTransductoris
             }
         }
 
+        private void Load_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            if (e.OriginalSource is not MenuItem { Header: string { } headerText }) return;
+            MainWindow mainWindow = new(headerText, true);
+            mainWindow.Show();
+        }
+        
         private void Save_Executed(object sender, ExecutedRoutedEventArgs e)
         {
             var activeTab = TabController.Tabs[FileTabControl.SelectedIndex].DataContext as ViewModelTab;
@@ -157,8 +165,8 @@ namespace WpfAdjuvatorTransductoris
         private void SaveProject_Executed(object sender, ExecutedRoutedEventArgs e)
         {
             TabController.SaveMultipleTabs(TabController.Tabs
-                    .Select(tab => tab.DataContext as ViewModelTab)
-                    .Where(tab => tab is not null && tab.HasChanges).ToArray());
+                .Select(tab => tab.DataContext as ViewModelTab)
+                .Where(tab => tab is not null && tab.HasChanges).ToArray());
         }
 
         private void SaveProject_CanExecuted(object sender, CanExecuteRoutedEventArgs e)
@@ -166,16 +174,24 @@ namespace WpfAdjuvatorTransductoris
 
         private void AddFile_Executed(object sender, ExecutedRoutedEventArgs e)
         {
-            NameGetterWindow namer = new NameGetterWindow(false, DataProvider.Data.DefaultFileFormat);
-            namer.NameChanged += ViewExplorer.AddNode;
-            namer.ShowDialog();
+            NameGetterWindow nameGiver = new NameGetterWindow(false, DataProvider.Data.DefaultFileFormat);
+            nameGiver.NameChanged += ViewExplorer.AddNode;
+            nameGiver.ShowDialog();
         }
 
         private void AddFolder_Executed(object sender, ExecutedRoutedEventArgs e)
         {
-            NameGetterWindow namer = new NameGetterWindow(true);
-            namer.NameChanged += ViewExplorer.AddNode;
-            namer.ShowDialog();
+            NameGetterWindow nameGiver = new NameGetterWindow(true);
+            nameGiver.NameChanged += ViewExplorer.AddNode;
+            nameGiver.ShowDialog();
+        }
+
+        private void RenameNode_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            if (e.OriginalSource is not ListBoxItem { DataContext: ViewModelExplorer.Node { } node}) return;
+            NameGetterWindow nameEditorWindow = new(node.IsFolder, DataProvider.Data.DefaultFileFormat, node.Name);
+            nameEditorWindow.NameChanged += newName => ViewExplorer.RenameNode(node.Name, newName);
+            nameEditorWindow.ShowDialog();
         }
 
         private void Remove_Executed(object sender, ExecutedRoutedEventArgs e)
@@ -190,7 +206,8 @@ namespace WpfAdjuvatorTransductoris
             }
         }
 
-        private void Remove_CanExecuted(object sender, CanExecuteRoutedEventArgs e)
+        // Finds if node can be deleted, renamed or copied
+        private void NodeOperation_CanExecuted(object sender, CanExecuteRoutedEventArgs e)
             => e.CanExecute = (ListBoxExplorer is not null) && (ListBoxExplorer.SelectedIndex >= 0) && !(ViewExplorer.Nodes.Count == 0 || 
                 (ViewExplorer.Nodes[0].Name == "..." && ViewExplorer.Nodes.Count == 1));
         

@@ -8,6 +8,7 @@
         Title="Adjuvator transductoris R" Height="450" Width="800">
     <Window.CommandBindings>
         <CommandBinding Command="local:Commands.NewProject" Executed="NewProj" />
+        <CommandBinding Command="local:Commands.LoadRecentProject" Executed="Load_Executed"/>
         <CommandBinding Command="local:Commands.ExtractData" Executed="ExtractData_Executed"  CanExecute="ExtractData_CanExecute"/>
         <CommandBinding Command="local:Commands.InjectData" Executed="InjectData_Executed" CanExecute="InjectData_CanExecute"/>
         <CommandBinding Command="local:Commands.Navigate" Executed="Navigate_Executed"/>
@@ -15,7 +16,8 @@
         <CommandBinding Command="local:Commands.Save" Executed="Save_Executed" CanExecute="Save_CanExecuted" />
         <CommandBinding Command="local:Commands.AddFile" Executed="AddFile_Executed"/>
         <CommandBinding Command="local:Commands.AddDir" Executed="AddFolder_Executed" />
-        <CommandBinding Command="local:Commands.RemoveNode" Executed="Remove_Executed" CanExecute="Remove_CanExecuted"/>
+        <CommandBinding Command="local:Commands.RenameNode" Executed="RenameNode_Executed" CanExecute="NodeOperation_CanExecuted"/>
+        <CommandBinding Command="local:Commands.RemoveNode" Executed="Remove_Executed" CanExecute="NodeOperation_CanExecuted"/>
         <CommandBinding Command="local:Commands.OpenLanguageManager" Executed="OpenLanguageManager_OnExecuted"/>
     </Window.CommandBindings>
     
@@ -29,6 +31,21 @@
         <KeyBinding Command="local:Commands.OpenLanguageManager"
                     Key="L"
                     Modifiers="Control"/>
+        <KeyBinding Command="local:Commands.ExtractData" 
+                    Key="E"
+                    Modifiers="Control"/>
+        <KeyBinding Command="local:Commands.InjectData"
+                    Key="I"
+                    Modifiers="Control"/>
+        <KeyBinding Command="local:Commands.NewProject" 
+                    Key="N"
+                    Modifiers="Control+Shift"/>
+        <KeyBinding Command="local:Commands.AddDir"
+                    Key="D"
+                    Modifiers="Control+Shift"/>
+        <KeyBinding Command="local:Commands.AddFile"
+                    Key="F"
+                    Modifiers="Control+Shift"/>
     </Window.InputBindings>
 
     <Grid>
@@ -36,28 +53,29 @@
             <RowDefinition Height="25"/>
             <RowDefinition Height="32"/>
             <RowDefinition/>
+            <RowDefinition Height="25"/>
         </Grid.RowDefinitions>
         
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="0.3*"/>
+            <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="0.7*"/>
         </Grid.ColumnDefinitions>
         
-        <Menu x:Name="MainMenu" Height="25" VerticalAlignment="Top" Grid.ColumnSpan="2" Grid.Row="0">
+        <Menu x:Name="MainMenu" Height="25" VerticalAlignment="Top" Grid.ColumnSpan="3" Grid.Row="0">
             <MenuItem Header="_Project">
-                <MenuItem Header="_New project" Command="local:Commands.NewProject" />
-                <MenuItem Header="_Open project" />
-                <MenuItem Header="_Recent project" />
+                <MenuItem Header="_New project" Command="local:Commands.NewProject" InputGestureText="Ctrl+Shift+N"/>
+                <MenuItem Header="_Recent project" x:Name="RecentProjectsMenuItem"/>
                 <Separator />
-                <MenuItem Header="_Save" Command="local:Commands.Save" />
-                <MenuItem Header="Save _all" Command="local:Commands.SaveProject" />
+                <MenuItem Header="_Save" Command="local:Commands.Save" InputGestureText="Ctrl+S"/>
+                <MenuItem Header="Save _all" Command="local:Commands.SaveProject" InputGestureText="Ctrl+Shift+S"/>
             </MenuItem>
             <MenuItem Header="_Translation" >
-                <MenuItem Header="_Extract translation" Command="local:Commands.ExtractData"/>
-                <MenuItem Header="_Inject translation" Command="local:Commands.InjectData"/>
+                <MenuItem Header="_Extract translation" Command="local:Commands.ExtractData" InputGestureText="Ctrl+E"/>
+                <MenuItem Header="_Inject translation" Command="local:Commands.InjectData" InputGestureText="Ctrl+I"/>
             </MenuItem>
             <MenuItem Header="_View">
-                <MenuItem Header="_Language Manager" Command="local:Commands.OpenLanguageManager"/>
+                <MenuItem Header="_Language Manager" Command="local:Commands.OpenLanguageManager" InputGestureText="Ctrl+L"/>
                 <MenuItem Header="Translation _completion"/>
             </MenuItem>
             <MenuItem Header="Pl_ugins">
@@ -74,7 +92,7 @@
         <ToolBar Grid.Row="1" Grid.Column="0" Height="32">
             <Button Command="local:Commands.AddFile">
                 <Button.ToolTip>
-                    <ToolTip Content="Add new file" />
+                    <ToolTip Content="Add new file (Ctrl+Shift+F)" />
                 </Button.ToolTip>
                 <Button.Content>
                     <Image Source="pack://application:,,,/Resources/addfile.png"/>
@@ -92,7 +110,7 @@
 
             <Button Command="local:Commands.AddDir">
                 <Button.ToolTip>
-                    <ToolTip Content="Add new folder" />
+                    <ToolTip Content="Add new folder (Ctrl+Shift+D)"/>
                 </Button.ToolTip>
                 <Button.Content>
                     <Image Source="pack://application:,,,/Resources/addfolder.png"/>
@@ -101,7 +119,7 @@
         </ToolBar>
 
         <ListBox x:Name="ListBoxExplorer"
-            Grid.Column="0" Grid.Row="2" Margin="4"
+            Grid.Column="0" Grid.Row="2" Margin="4, 4, 2, 0"
         >
             <ListBox.InputBindings>
                 <KeyBinding Key="Enter"
@@ -118,8 +136,8 @@
                         
                         <StackPanel.ContextMenu>
                             <ContextMenu>
-                                <MenuItem Header="Open" />
-                                <MenuItem Header="Rename" />
+                                <MenuItem Header="Open" Command="local:Commands.Navigate" />
+                                <MenuItem Header="Rename" Command="local:Commands.RenameNode" />
                                 <Separator/>
                                 <MenuItem Header="Copy" IsEnabled="False"/>
                                 <MenuItem Header="Cut" IsEnabled="False"/>
@@ -150,7 +168,16 @@
             </ListBox.ItemTemplate>
         </ListBox>
         
-        <TabControl x:Name="FileTabControl" Grid.Row="1" Grid.RowSpan="2" Grid.Column="1" />
+        <GridSplitter 
+            Grid.Column="1"
+            Grid.Row="1" 
+            Grid.RowSpan="2"
+            VerticalAlignment="Stretch"
+            HorizontalAlignment="Center"
+            Width="4"
+            ShowsPreview="True"/>
+        
+        <TabControl x:Name="FileTabControl" Grid.Row="1" Grid.RowSpan="2" Grid.Column="2" />
         <!--<DataGrid x:Name="dataView" Grid.Column="1" Grid.Row="2" Margin="4" ItemsSource="{Binding}"/> -->
     </Grid>
 </Window>

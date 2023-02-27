@@ -74,9 +74,12 @@ namespace AdjuvatorTransductorumRCor.Model
         public bool AddLanguage(string name)
             => _dataModel.AddLanguage(name);
 
-        public void RenameActiveNode(string newName, string oldName)
+        public void RenameNode(string oldName, string newName)
         {
-            ActiveNode.Name = newName;
+            var childNode = ActiveNode.nodes[oldName];
+            ActiveNode.nodes.Remove(oldName);
+            childNode.Name = newName;
+            ActiveNode.nodes.Add(newName, childNode);
             ChangeTracker.AddRename(DataAddress.Compress(ActiveNode.GetAddress()), newName, oldName);
         }
 

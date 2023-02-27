@@ -22,9 +22,12 @@ namespace WpfAdjuvatorTransductoris
     public partial class NameGetterWindow : Window
     {
         static private Regex nameChecker = new Regex(@"[\W\s]");
+        static private Regex extensionExtractor = new Regex(@"(?<=\.)\w+$");
         private bool isFolder { get; set; }
         public event Action<string>? NameChanged;
         private List<string> Formats { get; }
+        private static readonly Regex extensionTrimmer = new Regex(@"\.\w+$");
+
         public NameGetterWindow(bool isFolder, List<string>? formats = null, string? initial = null)
         {
             InitializeComponent();
@@ -36,6 +39,12 @@ namespace WpfAdjuvatorTransductoris
                 EnterNameLabel.Text = "Enter file name\n" +
                                       "the file extension is specified for convenience only";
                 FileFormatBox.ItemsSource = Formats;
+                if (!string.IsNullOrEmpty(initial))
+                {
+                    var extension = extensionExtractor.Match(initial);
+                    FileFormatBox.SelectedIndex = FileFormatBox.Items.IndexOf(extension.Value);
+                    initial = extensionTrimmer.Replace(initial, "");
+                }
             } 
             else
             {
@@ -49,7 +58,6 @@ namespace WpfAdjuvatorTransductoris
 
             if (string.IsNullOrEmpty(initial)) return;
             NameTextBlock.Text = initial;
-            NameTextBlock.SelectedText = initial;
         }
 
         public void Confirm_Executed(object sender, ExecutedRoutedEventArgs e) {

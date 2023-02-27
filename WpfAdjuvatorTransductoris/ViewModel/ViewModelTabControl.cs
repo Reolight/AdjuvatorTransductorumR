@@ -116,32 +116,20 @@ public class ViewModelTabControl : IDataDependable
         Tabs.Add(TabAssemble(tabView));
     }
 
-    public bool SaveTab(ViewModelTab tab)
+    public void SaveTab(ViewModelTab tab)
     {
-        if (Data is null) return false;
+        if (Data is null) return;
         tab.Save(Data.Redactor);
-        
-        return true;
     }
 
-    public bool SaveMultipleTabs(ViewModelTab?[] tab)
+    public void SaveMultipleTabs(ViewModelTab?[] tab)
     {
-        if (Data is null) return false ;
+        if (Data is null) return;
         foreach (var item in tab)
             item?.Save(Data.Redactor);
         Data.Redactor.CommitChanges();
-        return true;
     }
-
-    public bool SaveAllTabs()
-    {
-        if (Data is null) return false;
-        foreach (ViewModelTab tab in Tabs.Select(t => t.DataContext))
-            tab.Save(Data.Redactor);
-        Data.Redactor.CommitChanges();
-        return true;
-    }
-
+    
     internal void ForcedClose(string address)
     {
         var active = Tabs //remove deleting tabs from active

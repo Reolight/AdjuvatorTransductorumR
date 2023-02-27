@@ -1,8 +1,13 @@
 ﻿using AdjuvatorTransductorumRCor;
 using AdjuvatorTransductorumRCor.Model;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
+using WpfAdjuvatorTransductoris.Helpers;
 using WpfAdjuvatorTransductoris.Providers;
 using WpfAdjuvatorTransductoris.ViewModel;
 using MessageBox = System.Windows.MessageBox;
@@ -18,26 +23,37 @@ namespace WpfAdjuvatorTransductoris
         private ViewModelDataProvider DataProvider;
         private ViewModelTabControl TabController = new();
         private ViewModelExplorer ViewExplorer;
-        
+        private AppInfo _appInfo = AppInfo.GetInstance();
         private Core? _core;
 
         public MainWindow(string viewModelName, bool load = false)
         {            
             InitializeComponent();
             projName = viewModelName;
-
-            ViewExplorer ??= new ViewModelExplorer();
-            
+            ViewExplorer = new();
             ListBoxExplorer.ItemsSource = ViewExplorer.Nodes;
             FileTabControl.ItemsSource = TabController.Tabs;
-            
             DataProvider = new ViewModelDataProvider(load?
-                DataModelXmlReader.LoadProject(viewModelName) :
-                DataModelFabric.CreateNewDataModel(viewModelName)
+                DataModelXmlReader.LoadProject(projName) :
+                DataModelFabric.CreateNewDataModel(projName)
             );
-            
+
             DataProvider.Connect(ViewExplorer);
             DataProvider.Connect(TabController);
+            PopulateRecentProjects();
+        }
+
+        private void PopulateRecentProjects()
+        {
+            var recentProjects = _appInfo.GetRecent(projName);
+            RecentProjectsMenuItem.ItemsSource = recentProjects
+                .Select(recentProject =>
+                    new MenuItem
+                    {
+                        Command = Commands.LoadRecentProject,
+                        Header = recentProject
+                    });
+            RecentProjectsMenuItem.IsEnabled = RecentProjectsMenuItem.Items.Count > 0;
         }
 
         protected override void OnInitialized(EventArgs e)

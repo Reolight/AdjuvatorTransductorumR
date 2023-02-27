@@ -117,12 +117,11 @@ public sealed class DataModelXmlWriter
                 CommitNodeNew(parentElement, node);
                 break;
             case DataModelChangeType.Remove:
-                parentElement = GetElement(string.IsNullOrEmpty(changeInstance.Address)? changeInstance.NodeName:
-                    changeInstance.Address + ":" + changeInstance.NodeName );
+                parentElement = GetElement(DataAddress.SmartCompress(changeInstance.Address, changeInstance.NodeName));
                 parentElement.Remove();
                 break;
             case DataModelChangeType.Rename when changeInstance is DataModelRename renameInstance:
-                parentElement = GetElement(renameInstance.Address);
+                parentElement = GetElement(DataAddress.SmartCompress(renameInstance.Address, renameInstance.OldName));
                 parentElement.SetAttributeValue("Name", renameInstance.NodeName);
                 break;
             case DataModelChangeType.Edit when 
