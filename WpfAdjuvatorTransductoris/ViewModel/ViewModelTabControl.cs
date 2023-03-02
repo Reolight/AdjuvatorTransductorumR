@@ -7,9 +7,6 @@ using AdjuvatorTransductorumRCor.Model;
 using WpfAdjuvatorTransductoris.Helpers;
 using WpfAdjuvatorTransductoris.Providers;
 using System.Linq;
-using System.Diagnostics;
-using static WpfAdjuvatorTransductoris.ViewModel.ViewModelExplorer;
-using System.Net;
 
 namespace WpfAdjuvatorTransductoris.ViewModel;
 
@@ -30,8 +27,6 @@ public class ViewModelTabControl : IDataDependable
 
     public readonly ObservableCollection<TabItem> Tabs = new();
 
-    public string? PluginName;
-    
     private TabItem TabAssemble(ViewModelTab tabView)
     {
         DataGrid data = new DataGrid();
@@ -123,6 +118,7 @@ public class ViewModelTabControl : IDataDependable
     {
         if (Data is null) return;
         tab.Save(Data.Redactor);
+        Data.Redactor.CommitChanges();
     }
 
     public void SaveMultipleTabs(ViewModelTab?[] tab)

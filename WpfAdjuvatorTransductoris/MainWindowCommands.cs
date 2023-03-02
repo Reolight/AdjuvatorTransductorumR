@@ -63,7 +63,6 @@ namespace WpfAdjuvatorTransductoris
                         
                         DataProvider.Data = dataCarrierWindow.Data;
                         DataProvider.Data.InitWriter(projName);
-                        TabController.PluginName = pluginName;
                     };
                     
                     window.ShowDialog();
