@@ -23,7 +23,8 @@ namespace AdjuvatorTransductorumRCor.Model
             {
                 return nodes[key].GetNode(address);
             }
-            else return GetNode();
+
+            return GetNode();
         }
 
         public override IEnumerable<DataModelBase> GetNodes()

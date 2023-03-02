@@ -18,10 +18,13 @@ public class ViewModelExplorer : IDataDependable
         set
         {
             _data = value;
-            Address.Clear(); //Recalculating starts after Address change
+            _address.Clear(); //Recalculating starts after Address change
         }
     }
 
+    /// <summary>
+    /// Returns new instance of DataAddress. Use Down, Up for navigation and Clear for clearing data.
+    /// </summary>
     public DataAddress Address
     {
         get => _address;
@@ -40,7 +43,7 @@ public class ViewModelExplorer : IDataDependable
         if (_data is null) throw new NullReferenceException("Data is not exist");
         
         Nodes.Clear();
-        var nodes = _data.Root?.GetNodes(address.Address)
+        var nodes = _data.Root?.GetNodes(address.AddressQueue)
             .Select(node =>
                 new Node
                 {

@@ -2,11 +2,13 @@
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Forms;
 using System.Windows.Input;
 using AdjuvatorTransductorumRCor.Model;
 using AdjuvatorTransductorumRCor.ViewDescriber;
 using WpfAdjuvatorTransductoris.Helpers;
 using WpfAdjuvatorTransductoris.ViewModel;
+using Application = System.Windows.Application;
 using MessageBox = System.Windows.MessageBox;
 
 namespace WpfAdjuvatorTransductoris
@@ -127,12 +129,9 @@ namespace WpfAdjuvatorTransductoris
             }
             else
             {
-                var address = ViewExplorer.Address.Address;
+                var address = ViewExplorer.Address.AddressQueue;
                 address.Enqueue(node.Name);
-                var tabItem = TabController.Tabs
-                    .FirstOrDefault(t =>
-                        t.Name == Regexes.NameCompressorRestriction.Replace(DataAddress.Compress(address), "_")
-                    );
+                var tabItem = TabController.GetTab(DataAddress.Compress(address));
                 if (tabItem != null)
                     tabItem.IsSelected = true;
                 else
@@ -188,9 +187,17 @@ namespace WpfAdjuvatorTransductoris
 
         private void RenameNode_Executed(object sender, ExecutedRoutedEventArgs e)
         {
-            if (e.OriginalSource is not ListBoxItem { DataContext: ViewModelExplorer.Node { } node}) return;
-            NameGetterWindow nameEditorWindow = new(node.IsFolder, DataProvider.Data.DefaultFileFormat, node.Name);
-            nameEditorWindow.NameChanged += newName => ViewExplorer.RenameNode(node.Name, newName);
+            if (e.OriginalSource is not ListBoxItem { DataContext: ViewModelExplorer.Node { } explorerNode}) return;
+            NameGetterWindow nameEditorWindow = new(explorerNode.IsFolder, DataProvider.Data.DefaultFileFormat, explorerNode.Name);
+            nameEditorWindow.NameChanged += newName =>
+            {
+                var (parentAddress, newAddress) = (ViewExplorer.Address.AddressQueue, ViewExplorer.Address.AddressQueue);
+                parentAddress.Enqueue(explorerNode.Name);
+                newAddress.Enqueue(newName);
+                TabController.RenameNestedTabs(parentAddress, newAddress);
+                ViewExplorer.RenameNode(explorerNode.Name, newName);
+            };
+
             nameEditorWindow.ShowDialog();
         }
 

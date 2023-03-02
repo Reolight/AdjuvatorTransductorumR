@@ -7,6 +7,9 @@ using AdjuvatorTransductorumRCor.Model;
 using WpfAdjuvatorTransductoris.Helpers;
 using WpfAdjuvatorTransductoris.Providers;
 using System.Linq;
+using System.Diagnostics;
+using static WpfAdjuvatorTransductoris.ViewModel.ViewModelExplorer;
+using System.Net;
 
 namespace WpfAdjuvatorTransductoris.ViewModel;
 
@@ -104,7 +107,7 @@ public class ViewModelTabControl : IDataDependable
     public void CreateTab(Queue<string> address)
     {
         if (Data is null) return;
-        if (Data.Root?.GetNode(new Queue<string>(address)) is not { NodeType: NodeTypes.File } file) return;
+        if (Data.Root?.GetNode(address) is not { NodeType: NodeTypes.File } file) return;
         ViewModelTab tabView = new ViewModelTab((DataModelNode)file, Data.Languages);
 
         Data.LanguagesChanged += (sender, _) =>
@@ -129,16 +132,34 @@ public class ViewModelTabControl : IDataDependable
             item?.Save(Data.Redactor);
         Data.Redactor.CommitChanges();
     }
-    
-    internal void ForcedClose(string address)
-    {
-        var active = Tabs //remove deleting tabs from active
-                    .Where(t => {
-                        var vm = (ViewModelTab)t.DataContext;
-                        return vm.Address.Contains(address);
-                    })
-                    .ToList();
 
+    internal TabItem? GetTab(string fullAddress)
+        => Tabs.FirstOrDefault(tab => ((ViewModelTab)tab.DataContext).Address == fullAddress);
+
+    internal TabItem? GetTab(string address, string name)
+        => GetTab(DataAddress.SmartCompress(address, name));
+
+    internal TabItem? GetTab(Queue<string> address, string name)
+    {
+        address.Enqueue(name);
+        return GetTab(DataAddress.Compress(address));
+    }
+
+    /// <summary>
+    /// Searches within active tabs those with matching address including nesting to those address.
+    /// </summary>
+    /// <param name="address">Address</param>
+    /// <returns>Collection of tabs with matching address.</returns>
+    internal IEnumerable<TabItem> GetTabsByAddress(string address)
+        => Tabs.Where(tab =>
+        {
+            var viewModelContext = (ViewModelTab)tab.DataContext;
+            return DataAddress.Contains(address, viewModelContext.Address);
+        });
+    
+    internal void ForcedClose(string tabCompressedAddress)
+    {
+        var active = GetTabsByAddress(tabCompressedAddress);
         foreach (var activeTab in active) 
             Tabs.Remove(activeTab);
     }
@@ -158,5 +179,15 @@ public class ViewModelTabControl : IDataDependable
 
         _recentlyClosed.Push(vm.Address);
         Tabs.Remove(tab);
+    }
+
+    internal void RenameNestedTabs(Queue<string> parentAddress, Queue<string> newAddress)
+    {
+        var activeChildTabs = GetTabsByAddress(DataAddress.Compress(parentAddress));
+        foreach (var tabContext in activeChildTabs.Select(tab => (ViewModelTab)tab.DataContext))
+        {
+            tabContext.Address = DataAddress.Compress(
+                DataAddress.ReplaceAddress(DataAddress.Split(tabContext.Address), newAddress));
+        }
     }
 }

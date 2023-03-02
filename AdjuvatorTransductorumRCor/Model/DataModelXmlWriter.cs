@@ -112,7 +112,8 @@ public sealed class DataModelXmlWriter
         XElement parentElement;
         switch (changeInstance.ChangeType)
         {
-            case DataModelChangeType.Add when Model.Root.GetNode(changeInstance.NodeName) is { } node:
+            case DataModelChangeType.Add 
+                    when Model.Root.GetNode(DataAddress.SmartCompress(changeInstance.Address, changeInstance.NodeName)) is { } node:
                 parentElement = GetElement(changeInstance.Address);
                 CommitNodeNew(parentElement, node);
                 break;

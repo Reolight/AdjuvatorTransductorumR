@@ -16,7 +16,13 @@ public sealed class ViewModelTab : INotifyPropertyChanged
 {
     #region DATA
     private static readonly DataTable DummyTable = new(); 
+    /// <summary>
+    /// Current file name with extension
+    /// </summary>
     public readonly string Name;
+    /// <summary>
+    /// Address of the tab in string default format
+    /// </summary>
     public string Address;
     private List<string> _languages;
     private DataModelNode _file;
@@ -48,11 +54,10 @@ public sealed class ViewModelTab : INotifyPropertyChanged
         _table.RowChanged += (_, _) => HasChanges = true;
         _table.RowDeleted += (_, _) => HasChanges = true;
         _rows = Table.Rows;
+        var addressQueue = file.GetAddress();
+        Address = DataAddress.Compress(addressQueue);
+        Name = addressQueue.Peek();
 
-        Address = DataAddress.Compress(file.GetAddress());
-        var addressBasedName = Regexes.NameCompressorRestriction.Replace(Address, "_");
-        Name = addressBasedName;
-        
         UpdateTable();
     }
     
