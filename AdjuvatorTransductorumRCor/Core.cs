@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using AdjuvatorTransductorumRCor.Model;
 using AdjuvatorTransductorumRCor.PluginCommonInterface;
 using AdjuvatorTransductorumRCor.ViewDescriber;
 
@@ -7,7 +6,7 @@ namespace AdjuvatorTransductorumRCor
 {
     public class Core
     {
-        public const int CorVersion = 1;
+        public const int CorVersion = 2;
         
         private List<IDataProvider> _dataProviders; //Use dictionary with Assemblies Names??
         private List<IDataProviderInfo> _notSupportedProviders = new();

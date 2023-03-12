@@ -9,10 +9,11 @@ namespace ReactJS_i18next_BackendJSON_localAccessor
     // For extracting translation files from locales folder of i18next
     public class Rjsi18NJsonLocProvider : IDataProvider
     {
+        private static readonly Rjsi18NJsonLocProvider Instance = new();
         public string Name => "JSON i18next";
         public string Description => "Manages JSON files to use with i18next backend library in ReactJS";
         public string Author => "Reolight Miene";
-        public int CorVersion => 1;
+        public int CorVersion => 2;
 
         private static List<string> SupportedFiles { get; } = new() { "json" };
 
@@ -51,7 +52,7 @@ namespace ReactJS_i18next_BackendJSON_localAccessor
                             if (o is not ViewDefinition definition) return;
                             if (definition.FindViewByName("folderSelector")?.Content is not { } pathProp
                                 || pathProp.Property?.ToString() is not { } path) return;
-                            args.DataExtracted = ExtractData(path);
+                            args.DataExtracted = Instance.ExtractData(path);
                         },
                     CanExecuteEvent = (o, args) =>
                         {
@@ -94,15 +95,15 @@ namespace ReactJS_i18next_BackendJSON_localAccessor
                     },
                     ExecuteEvent = (o, args) =>
                     {
-                        if (o is not ViewDefinition definition) return;
+                        if (o is not ViewDefinition { Data: { } } definition) return;
                         if (definition.FindViewByName("folderSelector")?.Content?.Property?.ToString() is not { } path) return;
-                        InjectData(definition.Data!, path);
+                        Instance.InjectData(definition.Data, path);
                         args.Injected = true;
                     }
                 }
             });
         
-        private static void ParseJson(DataBuilder builder, string json, string lang)
+        private void ParseJson(DataBuilder builder, string json, string lang)
         {
             MatchCollection keys = JsonKeyParser.Matches(json);
             MatchCollection vals = JsonValueParser.Matches(json);
@@ -116,13 +117,13 @@ namespace ReactJS_i18next_BackendJSON_localAccessor
             }
         }
         
-        private static void GetDataFromFile(FileInfo file, DataBuilder builder, string lang)
+        private void GetDataFromFile(FileInfo file, DataBuilder builder, string lang)
         {
             string json = File.ReadAllText(file.FullName, Encoding.UTF8);
             ParseJson(builder, json, lang);
         }
  
-        private static bool CreateVm(DataBuilder builder, DirectoryInfo dir, string lang)
+        private bool CreateVm(DataBuilder builder, DirectoryInfo dir, string lang)
         {
             foreach (DirectoryInfo d in dir.GetDirectories())
             {
@@ -141,7 +142,7 @@ namespace ReactJS_i18next_BackendJSON_localAccessor
             return true; // builder.Up();
         }
 
-        private static void LangInit(DataBuilder builder, DirectoryInfo dir)
+        private void LangInit(DataBuilder builder, DirectoryInfo dir)
         {
             foreach (DirectoryInfo lang in dir.GetDirectories()) {
                 builder.AddLanguage(lang.Name);
@@ -149,8 +150,10 @@ namespace ReactJS_i18next_BackendJSON_localAccessor
             }
         }
 
-        public static DataModel ExtractData(string path)
+        public DataModel ExtractData(object extractionInfo)
         {
+            if (extractionInfo is not string path)
+                throw new ArgumentException("[external|extraction] Unknown extraction info");
             const string locales = "locales";
             DirectoryInfo dir = new DirectoryInfo(path);
             DataModel model = new DataModel(dir.Name, SupportedFiles);
@@ -166,7 +169,7 @@ namespace ReactJS_i18next_BackendJSON_localAccessor
             return model;
         }
 
-        private static void WriteInFile(FileSystemInfo file, byte[] content)
+        private void WriteInFile(FileSystemInfo file, byte[] content)
         {
             FileStream fs = new FileStream(file.FullName, FileMode.Create);
             fs.Write(Encoding.UTF8.GetBytes("{\n"));
@@ -177,7 +180,7 @@ namespace ReactJS_i18next_BackendJSON_localAccessor
             Console.WriteLine($"JSON in {file.FullName} is written\n\n{content}\n");
 #endif
         }
-        private static bool UnloadInFile(DataModel model, FileSystemInfo parent, string lang)
+        private bool UnloadInFile(DataModel model, FileSystemInfo parent, string lang)
         {            
             List<string> strings = new List<string>();
             foreach (var dataModelBase in model.Redactor.ActiveNode.GetNodes())
@@ -197,7 +200,7 @@ namespace ReactJS_i18next_BackendJSON_localAccessor
             return true;
         }
 
-        private static bool UnloadNodes(DataModel model, DataModelNode node, FileSystemInfo parent, string lang)
+        private bool UnloadNodes(DataModel model, DataModelNode node, FileSystemInfo parent, string lang)
         {
             switch (node.NodeType)
             {
@@ -222,7 +225,7 @@ namespace ReactJS_i18next_BackendJSON_localAccessor
             return true;
         }
 
-        private static bool Unload(DataModel dm, FileSystemInfo parent, string lang)
+        private bool Unload(DataModel dm, FileSystemInfo parent, string lang)
         {
             foreach (var node in dm.Redactor.ActiveNode.GetNodes())
             {
@@ -233,7 +236,7 @@ namespace ReactJS_i18next_BackendJSON_localAccessor
             return true;
         }
         
-        private static void LangCreate(DataModel dm, DirectoryInfo root)
+        private void LangCreate(DataModel dm, DirectoryInfo root)
         {
             foreach (var language in dm.Languages)
             {
@@ -246,8 +249,10 @@ namespace ReactJS_i18next_BackendJSON_localAccessor
             }
         }
 
-        private static void InjectData(DataModel dm, string path)
+        public void InjectData(DataModel dm, object injectionInfo)
         {
+            if (injectionInfo is not string path) 
+                throw new ArgumentException("[external|injector] Unknown injection info");
             DirectoryInfo dir = new DirectoryInfo(path);
             if (dir.Name != "locales" || !dir.Exists)
                 dir = new DirectoryInfo(dir.FullName + "\\locales");

@@ -11,9 +11,15 @@ namespace WpfAdjuvatorTransductoris
     {
         public event Action<string>? Confirmed;
 
-        public DataExtractionWindow(Core core)
+        public DataExtractionWindow(Core core, bool isInjector = false)
         {
             InitializeComponent();
+            if (isInjector)
+            {
+                ConfirmButton.Content = "Inject";
+                Title = "Data injector";
+            }
+            
             pluginList.DataContext = core.PluginsList.Value;
         }
 

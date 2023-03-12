@@ -88,7 +88,7 @@ namespace WpfAdjuvatorTransductoris
         private void InjectData_Executed(object sender, ExecutedRoutedEventArgs e)
         {
             if (_core == null) return; 
-            DataExtractionWindow extractionWindow = new DataExtractionWindow(_core);
+            DataExtractionWindow extractionWindow = new DataExtractionWindow(_core, true);
             extractionWindow.Confirmed += (pluginName) =>
             {
                 try

@@ -1,4 +1,5 @@
-﻿using AdjuvatorTransductorumRCor.Model;
+﻿using System.Data;
+using AdjuvatorTransductorumRCor.Model;
 using AdjuvatorTransductorumRCor.ViewDescriber;
 
 namespace AdjuvatorTransductorumRCor.PluginCommonInterface
@@ -20,5 +21,9 @@ namespace AdjuvatorTransductorumRCor.PluginCommonInterface
         /// internal logic of plugin and return true in args.Injected
         /// </summary>
         public ViewDefinition InjectionViewDescription { get; }
+
+        public void InjectData(DataModel dm, object injectionInfo);
+
+        public DataModel ExtractData(object extractionInfo);
     }
 }
