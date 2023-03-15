@@ -9,6 +9,7 @@ namespace WpfAdjuvatorTransductoris.ViewModel;
 public class ViewModelExplorer : IDataDependable
 {
     private DataModel? _data;
+    // TODO: Fix reverse order! (throws exceptions "key not found" cuz need to use Stack)
     private DataAddress _address = new();
     private ObservableCollection<Node>? _nodes;
 

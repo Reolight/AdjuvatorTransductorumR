@@ -21,7 +21,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\ReactJS_i18next_BackendJSON_localAccessor\ReactJS_i18next_BackendJSON_localAccessor.csproj" />
     <ProjectReference Include="..\AdjuvatorTransductorumRCor\AdjuvatorTransductorumRCor.csproj" />
   </ItemGroup>
 

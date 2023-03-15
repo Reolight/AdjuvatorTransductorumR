@@ -4,6 +4,7 @@ namespace AdjuvatorTransductorumRCor.Model
 {
     public abstract class DataModelBase
     {
+        // TODO: Cached address
         protected string? CachedAddress;
 
         private string _name = string.Empty;

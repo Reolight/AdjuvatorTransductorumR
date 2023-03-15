@@ -3,6 +3,7 @@ using System.Diagnostics;
 
 namespace AdjuvatorTransductorumRCor.Model
 {
+    // TODO: Make it main address instead of string, Stack, Queue; Let it be LinkedList.
     public sealed class DataAddress
     {
         public static implicit operator string(DataAddress address) => Compress(address.AddressQueue);

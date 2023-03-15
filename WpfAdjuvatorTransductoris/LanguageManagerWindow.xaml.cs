@@ -10,6 +10,7 @@ using AdjuvatorTransductorumRCor.Model;
 
 namespace WpfAdjuvatorTransductoris;
 
+// TODO: Check if language changes saving properly
 public partial class LanguageManagerWindow
 {
     private DataModel _data;
