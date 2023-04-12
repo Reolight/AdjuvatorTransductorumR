@@ -3,10 +3,17 @@ using System.Diagnostics;
 
 namespace AdjuvatorTransductorumRCor.Model
 {
-    // TODO: Make it main address instead of string, Stack, Queue; Let it be LinkedList.
     public sealed class DataAddress
     {
         public static implicit operator string(DataAddress address) => Compress(address.AddressQueue);
+
+        public static TCollection Split<TCollection>(string address)
+            where TCollection : class, IEnumerable<string>, new() 
+        {
+            string[] arr = (address.Split(':'));
+            return arr as TCollection ?? throw new InvalidCastException("[internal|Core:DataAddress] Couldn't cast address string to " + nameof(TCollection));
+        }
+
         public static Queue<string> Split(string address) => new(address.Split(':'));
         public static Stack<string> RevertedSplit(string address) => new(address.Split(':'));
         public static string Compress(IEnumerable<string> address) => string.Join(":", address.ToArray());
@@ -65,7 +72,12 @@ namespace AdjuvatorTransductorumRCor.Model
             return new Queue<string>(newPart.Concat(nestedAddress));
         }
         
-        private Queue<string> _address = new();
+        private LinkedList<string> _address = new();
+
+        public LinkedList<string> AddressLinkedList
+        {
+            get => new(_address);
+        }
 
         /// <summary>
         /// Returns new instance of Queue representing Address;
@@ -73,11 +85,6 @@ namespace AdjuvatorTransductorumRCor.Model
         public Queue<string> AddressQueue
         {
             get => new(_address); //implicit cloning
-            set
-            {
-                _address = value;
-                OnChanged();
-            }
         }
 
         public override string ToString()
@@ -94,15 +101,25 @@ namespace AdjuvatorTransductorumRCor.Model
             Changed?.Invoke(this, EventArgs.Empty);
         }
 
+        public string Pop()
+        {
+            string item = _address.Last();
+            _address.RemoveLast();
+            OnChanged();
+            return item;
+        }
+        
         public void Enqueue(string address)
         {
-            _address.Enqueue(address);
+            _address.AddLast(address);
             OnChanged();
         }
 
         public string Dequeue()
         {
-            string item = _address.Dequeue();
+
+            string item = _address.First(); 
+            _address.RemoveFirst();
             OnChanged();
             return item;
         }
@@ -117,7 +134,7 @@ namespace AdjuvatorTransductorumRCor.Model
 
         public DataAddress(string address)
         {
-            _address = Split(address);
+            _address = Split<LinkedList<string>>(address);
         }
     }
 }

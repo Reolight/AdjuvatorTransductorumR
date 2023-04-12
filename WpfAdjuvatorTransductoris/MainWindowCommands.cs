@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -122,14 +123,14 @@ namespace WpfAdjuvatorTransductoris
             if (node.IsFolder)
             {
                 if (node.Name == "...")
-                    ViewExplorer.Address.Dequeue();
+                    ViewExplorer.Address.Pop();
                 else
                     ViewExplorer.Address.Enqueue($"{node.Name}");
             }
             else
             {
-                var address = ViewExplorer.Address.AddressQueue;
-                address.Enqueue(node.Name);
+                var address = ViewExplorer.Address.AddressLinkedList;
+                address.AddLast(node.Name);
                 var tabItem = TabController.GetTab(DataAddress.Compress(address));
                 if (tabItem != null)
                     tabItem.IsSelected = true;

@@ -99,10 +99,10 @@ public class ViewModelTabControl : IDataDependable
         };
     }
 
-    public void CreateTab(Queue<string> address)
+    public void CreateTab(LinkedList<string> address)
     {
         if (Data is null) return;
-        if (Data.Root?.GetNode(address) is not { NodeType: NodeTypes.File } file) return;
+        if (Data.Root?.GetNode(new Queue<string>(address)) is not { NodeType: NodeTypes.File } file) return;
         ViewModelTab tabView = new ViewModelTab((DataModelNode)file, Data.Languages);
 
         Data.LanguagesChanged += (sender, _) =>
